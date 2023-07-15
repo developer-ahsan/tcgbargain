@@ -55,7 +55,7 @@ export class ProductsDetailsComponents implements OnInit, AfterViewInit, OnDestr
      * On init
      */
     ngOnInit(): void {
-        this.getSelectedStore();
+        this.getSelectedProduct();
         this._router.events.subscribe((event) => {
             if (event instanceof NavigationEnd) {
                 this.selectedScreeen = this.route.children[0].snapshot.data.title;
@@ -79,7 +79,7 @@ export class ProductsDetailsComponents implements OnInit, AfterViewInit, OnDestr
                 }
             });
     }
-    getSelectedStore() {
+    getSelectedProduct() {
         this._productService.Product$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             this.selectedProduct = res["data"][0];
             this.routesInitialize();
