@@ -1,0 +1,49 @@
+<div class="flex-auto w-full p-5">
+    <div class="bg-card rounded-2xl p-5">
+        <div class="row" [formGroup]="userForm">
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Name*</mat-label>
+                    <input matInput placeholder="Enter User Name" formControlName="name">
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Email*</mat-label>
+                    <input matInput placeholder="Enter User Email" formControlName="email">
+                </mat-form-field>
+            </div>
+            <!-- <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Password*</mat-label>
+                    <input matInput type="password" placeholder="Enter User Password"
+                        formControlName="password">
+                </mat-form-field>
+            </div> -->
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>UserName*</mat-label>
+                    <input matInput placeholder="Enter Username" formControlName="username">
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Role*</mat-label>
+                    <mat-select matInput class="w-full" formControlName="role">
+                        <mat-option value="admin">Admin</mat-option>
+                        <mat-option value="consumer">Consumer</mat-option>
+                        <mat-option value="vendor">Vendor</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="text-right col-12">
+                <button class="min-w-50" mat-stroked-button [matTooltip]="'Update User'" (click)="updateUser()">
+                    <mat-icon svgIcon="heroicons_solid:pencil-alt" *ngIf="!isEditLoader"></mat-icon>
+                    <span class="ml-2" *ngIf="!isEditLoader"> Update User </span>
+                    <mat-progress-spinner *ngIf="isEditLoader" [diameter]="24"
+                        [mode]="'indeterminate'"></mat-progress-spinner>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

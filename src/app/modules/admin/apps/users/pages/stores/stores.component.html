@@ -1,0 +1,83 @@
+<div class="flex-auto w-full">
+    <div class="w-full ">
+        <div *ngIf="selectedUser.stores.length > 0;else other_content" class="w-full">
+            <table mat-table [dataSource]="selectedUser.stores" class="w-full border-t">
+                <ng-container matColumnDef="title">
+                    <th mat-header-cell *matHeaderCellDef class="w-40 min-w-40">
+                        Name
+                    </th>
+                    <td mat-cell *matCellDef="let element">
+                        <a [routerLink]="['/apps/stores',element.id]" class="text-blue-600 underline">{{element.title ||
+                            'N/A'}}</a>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="url">
+                    <th mat-header-cell *matHeaderCellDef class="w-40 min-w-40">
+                        URL
+                    </th>
+                    <td mat-cell *matCellDef="let element">
+                        {{element.url || 'N/A'}}
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="primary">
+                    <th mat-header-cell *matHeaderCellDef class="w-40 min-w-40">
+                        Priamry Color
+                    </th>
+                    <td mat-cell *matCellDef="let element">
+                        {{element.primary_color || 'N/A'}}
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="secondary">
+                    <th mat-header-cell *matHeaderCellDef class="w-40 min-w-40">
+                        Secondary Color
+                    </th>
+                    <td mat-cell *matCellDef="let element" class="text-capitalize">
+                        {{element.secondary_color || 'N/A'}}
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef class="w-40 min-w-40">
+                        Status
+                    </th>
+                    <td mat-cell *matCellDef="let element" class="text-capitalize">
+                        <mat-icon svgIcon="heroicons_outline:x" *ngIf="!element.is_active"
+                            class="text-red-700 icon-size-6"></mat-icon>
+                        <mat-icon svgIcon="heroicons_outline:check" *ngIf="element.is_active"
+                            class="text-green-700 icon-size-6"></mat-icon>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="created_at">
+                    <th mat-header-cell *matHeaderCellDef class="w-40 min-w-40">
+                        Created At
+                    </th>
+                    <td mat-cell *matCellDef="let element" class="text-capitalize">
+                        {{(element.created_at | date) || 'N/A'}}
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="action">
+                    <th mat-header-cell *matHeaderCellDef class="w-15 min-w-15"> Action </th>
+                    <td mat-cell *matCellDef="let element">
+                        <div class="flex">
+                            <mat-icon svgIcon="heroicons_outline:trash" *ngIf="!element?.delLoader"
+                                (click)="deleteStore(element)"></mat-icon>
+                            <mat-progress-spinner *ngIf="element?.delLoader" [diameter]="24" [mode]="'indeterminate'"
+                                class="ml-2"></mat-progress-spinner>
+                        </div>
+                    </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns;" class="h-18 bg-light"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                    class="h-14 hover:bg-gray-100 dark:hover:bg-hover" style="cursor: pointer;">
+                </tr>
+            </table>
+        </div>
+        <!-- No Store Found -->
+        <ng-template #other_content>
+            <div class="p-5">
+                <div class="font-semibold  text-center alert alert-danger">
+                    No Stores found.
+                </div>
+            </div>
+        </ng-template>
+    </div>
+</div>

@@ -1,0 +1,217 @@
+<div class="flex-auto w-full p-5">
+    <div class="w-full bg-card rounded-2xl" *ngIf="!isEditBoolean">
+        <div class="p-5 pb-4">
+            <mat-button-toggle-group #group="matButtonToggleGroup" [value]="mainScreen"
+                (change)="calledScreen(group.value)">
+                <mat-button-toggle value="Current Address">
+                    Current Address
+                </mat-button-toggle>
+                <mat-button-toggle value="Add New Address">
+                    Add New Address
+                </mat-button-toggle>
+            </mat-button-toggle-group>
+        </div>
+        <div>
+            <div *ngIf="mainScreen == 'Current Address'">
+                <div *ngIf="isLoading" class="px-5">
+                    <ngx-skeleton-loader count="8" appearance="line" animation="pulse" [theme]="{ 
+                        'background-color': '#dedede'
+                      }">
+                    </ngx-skeleton-loader>
+                </div>
+                <div *ngIf="!isLoading">
+                    <div class="text-right">
+                        <div class="px-5">
+                            <mat-form-field class="min-w-100">
+                                <input matInput matTooltip="Enter to search" placeholder="Search Keyword"
+                                    [disabled]="isSearching" [(ngModel)]="keyword"
+                                    (keyup.enter)="searchUser($event.target.value)">
+                            </mat-form-field>
+                            <p class="text-secondary text-right font-medium cursor-pointer mb-2" *ngIf="!isSearching"
+                                (click)="resetSearch()">Reset</p>
+                            <p class="text-secondary text-right font-medium mb-2" *ngIf="isSearching">Searching...
+                            </p>
+                        </div>
+                    </div>
+                    <div *ngIf="dataSource.length > 0;else other_content" class="w-full">
+                        <table mat-table [dataSource]="dataSource" class="w-full border-t">
+                            <ng-container matColumnDef="name">
+                                <th mat-header-cell *matHeaderCellDef class="w-40 min-w-40">
+                                    Name
+                                </th>
+                                <td mat-cell *matCellDef="let element" [routerLink]="['/apps/Address/4']">
+                                    {{element.name}}
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="email">
+                                <th mat-header-cell *matHeaderCellDef class="w-40 min-w-40">
+                                    Email
+                                </th>
+                                <td mat-cell *matCellDef="let element">
+                                    {{element.email}}
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="username">
+                                <th mat-header-cell *matHeaderCellDef class="w-40 min-w-40">
+                                    Username
+                                </th>
+                                <td mat-cell *matCellDef="let element">
+                                    {{element.username}}
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="role">
+                                <th mat-header-cell *matHeaderCellDef class="w-40 min-w-40">
+                                    Role
+                                </th>
+                                <td mat-cell *matCellDef="let element" class="text-capitalize">
+                                    {{element.role}}
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="created_at">
+                                <th mat-header-cell *matHeaderCellDef class="w-40 min-w-40">
+                                    Created At
+                                </th>
+                                <td mat-cell *matCellDef="let element" class="text-capitalize">
+                                    {{element.created_at}}
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="action">
+                                <th mat-header-cell *matHeaderCellDef class="w-15 min-w-15"> Action </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <div class="flex">
+                                        <mat-icon svgIcon="heroicons_outline:pencil-alt" (click)="editUser(element)">
+                                        </mat-icon>
+                                        <mat-icon svgIcon="heroicons_outline:trash" *ngIf="!element?.delLoader"
+                                            (click)="deleteUser(element)"></mat-icon>
+                                        <mat-progress-spinner *ngIf="element?.delLoader" [diameter]="24"
+                                            [mode]="'indeterminate'" class="ml-2"></mat-progress-spinner>
+                                    </div>
+                                </td>
+                            </ng-container>
+                            <tr mat-header-row *matHeaderRowDef="displayedColumns;" class="h-18 bg-light"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                                class="h-14 hover:bg-gray-100 dark:hover:bg-hover" style="cursor: pointer;">
+                            </tr>
+                        </table>
+                        <mat-paginator #paginator
+                            class="border-b sm:border-t sm:border-b-0 z-10 bg-gray-50 dark:bg-transparent"
+                            [ngClass]="{'pointer-events-none': isLoading}" [length]="totalAddress" [pageIndex]="0"
+                            [pageSize]="20" (page)="getNextData($event)" [hidePageSize]="true">
+                        </mat-paginator>
+                    </div>
+                    <!-- No Address Found -->
+                    <ng-template #other_content>
+                        <div class="text-secondary font-semibold p-5 text-center">
+                            No Address found.
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
+            <div *ngIf="mainScreen == 'Add New Address'" class="p-6">
+                <div class="row" [formGroup]="addressForm">
+                    <div class="col-12 col-md-6">
+                        <mat-form-field class="w-full" appearance="fill">
+                            <mat-label>Street</mat-label>
+                            <input matInput formControlName="street">
+                        </mat-form-field>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <mat-form-field class="w-full" appearance="fill">
+                            <mat-label>City*</mat-label>
+                            <input matInput formControlName="city">
+                        </mat-form-field>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <mat-form-field class="w-full" appearance="fill">
+                            <mat-label>State</mat-label>
+                            <input matInput formControlName="state">
+                        </mat-form-field>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <mat-form-field class="w-full" appearance="fill">
+                            <mat-label>Country*</mat-label>
+                            <input matInput formControlName="country">
+                        </mat-form-field>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <mat-form-field class="w-full" appearance="fill">
+                            <mat-label>Phone Number*</mat-label>
+                            <input matInput formControlName="phone_number">
+                        </mat-form-field>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <mat-form-field class="w-full" appearance="fill">
+                            <mat-label>Postal Code*</mat-label>
+                            <input matInput formControlName="postal_code">
+                        </mat-form-field>
+                    </div>
+                    <div class="text-right col-12">
+                        <button class="min-w-50" mat-stroked-button [matTooltip]="'Add New Address'"
+                            (click)="addNewAddress()">
+                            <mat-icon svgIcon="heroicons_solid:plus" *ngIf="!isAddLoader"></mat-icon>
+                            <span class="ml-2" *ngIf="!isAddLoader"> Add New Address </span>
+                            <mat-progress-spinner *ngIf="isAddLoader" [diameter]="24"
+                                [mode]="'indeterminate'"></mat-progress-spinner>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="isEditBoolean" class="w-full">
+        <div class="p-6">
+            <div class="text-right my-2">
+                <button class="min-w-30" mat-stroked-button [matTooltip]="'Back to List'" (click)="backToList()">
+                    <span class="ml-2" *ngIf="!isEditLoader"> Back to List </span>
+                </button>
+            </div>
+            <div class="row" [formGroup]="editAddressForm">
+                <div class="col-12 col-md-6">
+                    <mat-form-field class="w-full" appearance="fill">
+                        <mat-label>Street</mat-label>
+                        <input matInput formControlName="street">
+                    </mat-form-field>
+                </div>
+                <div class="col-12 col-md-6">
+                    <mat-form-field class="w-full" appearance="fill">
+                        <mat-label>City*</mat-label>
+                        <input matInput formControlName="city">
+                    </mat-form-field>
+                </div>
+                <div class="col-12 col-md-6">
+                    <mat-form-field class="w-full" appearance="fill">
+                        <mat-label>State</mat-label>
+                        <input matInput formControlName="state">
+                    </mat-form-field>
+                </div>
+                <div class="col-12 col-md-6">
+                    <mat-form-field class="w-full" appearance="fill">
+                        <mat-label>Country*</mat-label>
+                        <input matInput formControlName="country">
+                    </mat-form-field>
+                </div>
+                <div class="col-12 col-md-6">
+                    <mat-form-field class="w-full" appearance="fill">
+                        <mat-label>Phone Number*</mat-label>
+                        <input matInput formControlName="phone_number">
+                    </mat-form-field>
+                </div>
+                <div class="col-12 col-md-6">
+                    <mat-form-field class="w-full" appearance="fill">
+                        <mat-label>Postal Code*</mat-label>
+                        <input matInput formControlName="postal_code">
+                    </mat-form-field>
+                </div>
+                <div class="text-right col-12">
+                    <button class="min-w-50" mat-stroked-button [matTooltip]="'Update User'" (click)="updateAddress()">
+                        <mat-icon svgIcon="heroicons_solid:pencil-alt" *ngIf="!isEditLoader"></mat-icon>
+                        <span class="ml-2" *ngIf="!isEditLoader"> Update User </span>
+                        <mat-progress-spinner *ngIf="isEditLoader" [diameter]="24"
+                            [mode]="'indeterminate'"></mat-progress-spinner>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

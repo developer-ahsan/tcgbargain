@@ -1,0 +1,73 @@
+<div class="flex-auto w-full p-5">
+    <div class="bg-card rounded-2xl p-5">
+        <div class="row" [formGroup]="productForm">
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Name*</mat-label>
+                    <input matInput placeholder="Enter Product Name" formControlName="name">
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Product Number*</mat-label>
+                    <input matInput placeholder="Enter Product Number" formControlName="product_number">
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Price*</mat-label>
+                    <input matInput type="number" placeholder="Enter Price" formControlName="price">
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>URL*</mat-label>
+                    <input matInput placeholder="Enter Product URL" formControlName="url">
+                </mat-form-field>
+            </div>
+
+            <div class="col-12">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Description*</mat-label>
+                    <textarea matInput name="" id="" cols="30" rows="10" formControlName="description"
+                        placeholder="Enter Product Description"></textarea>
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Image*</mat-label>
+                    <input matInput placeholder="Enter Image URL" formControlName="image_url">
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Source*</mat-label>
+                    <input matInput placeholder="Enter Product Source" formControlName="source">
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Slug*</mat-label>
+                    <input matInput placeholder="Enter Slug" formControlName="slug">
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Active*</mat-label>
+                    <mat-select formControlName="is_active">
+                        <mat-option [value]="true">Active</mat-option>
+                        <mat-option [value]="false">Disabled</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="text-right col-12">
+                <button class="min-w-50" mat-stroked-button [matTooltip]="'Update Products'" (click)="updateProduct()">
+                    <mat-icon svgIcon="heroicons_solid:plus" *ngIf="!isEditLoader"></mat-icon>
+                    <span class="ml-2" *ngIf="!isEditLoader"> Update Product </span>
+                    <mat-progress-spinner *ngIf="isEditLoader" [diameter]="24"
+                        [mode]="'indeterminate'"></mat-progress-spinner>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
