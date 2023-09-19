@@ -114,15 +114,58 @@ export class StoreProducstListComponent implements OnInit, OnDestroy {
         if (!this.ngSelectedCats) {
             this.showToast('Please select atleat one categories', 'Select Category', 'error');
             return;
-
         }
+
         products.importLoader = true;
         const { title, url, body_html, price, handle, is_active, id, product, image, vendor_id, source, product_type, affiliate_url } = products
         let image_url = '';
         if (image) {
             image_url = image.src;
         }
-        let payload = { name: title, url, description: body_html, price: Number(products.variants[0].price), slug: handle, is_active: true, product_number: id, image_url: image_url, vendor_id, source: 'shopify', product_type: 'normal', affiliate_url: '', product: true };
+        let Variants = [];
+        let Packaging = null;
+
+        products.variants.forEach((element, index) => {
+            if (index == 0) {
+                Packaging = {
+                    size_length: 10,
+                    size_width: 5,
+                    size_height: 8,
+                    weight: element.weight
+                }
+            }
+            Variants.push({
+                size: element.option3,
+                color: element.option2,
+                price_adjustment: element.price,
+                stock: element.inventory_quantity,
+                sku: element.sku
+            })
+        });
+        let Images = [];
+        products.images.forEach(element => {
+            Images.push(element.src);
+        });
+        let payload = {
+            name: title,
+            description: body_html,
+            product_number: id,
+            price: Number(products.variants[0].price),
+            source: "Shopify",
+            url: handle,
+            ...(this.user.role === 'vendor' && { vendor_id: this.user.vendor.id }),
+            image_url: image_url,
+            slug: handle,
+            is_active: true,
+            product_type: 'normal',
+            affiliate_url: "",
+            delivery_rate: 5.99,
+            categories: this.ngSelectedCats,
+            variants: Variants,
+            packaging: Packaging,
+            images: Images,
+            shopify_product: true
+        };
         this._productService.postProductCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             this.showToast(res["message"], 'Product Created', 'success');
             products.importLoader = false;

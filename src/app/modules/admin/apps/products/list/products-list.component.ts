@@ -14,6 +14,7 @@ import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { ImageuploadService } from 'app/imageupload.service';
 import { environment } from 'environments/environment';
 import { AuthService } from 'app/core/auth/auth.service';
+import * as XLSX from 'xlsx';
 
 @Component({
     selector: 'products-list',
@@ -24,6 +25,7 @@ import { AuthService } from 'app/core/auth/auth.service';
 })
 export class ProductsListComponent implements OnInit, OnDestroy {
     @ViewChild('paginator') paginator: MatPaginator;
+    @ViewChild('fileExcel') fileExcel: ElementRef;
     // List
     private _unsubscribeAll: Subject<any> = new Subject<any>();
     displayedColumns: string[] = ['image', 'name', 'product_number', 'price', 'slug', 'status', 'created_at', 'action'];
@@ -53,6 +55,8 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     selectedCategory: any = '';
     isSearchingCatefory = false;
     bestBuyCategory: any = [];
+    excelData: any = [];
+    isBulkUploadLoader: boolean = false;
     constructor(
         private _activatedRoute: ActivatedRoute,
         private _changeDetectorRef: ChangeDetectorRef,
@@ -134,6 +138,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
                 this.initForm();
                 this.mainScreen = 'Current Products';
                 this.isAddLoader = false;
+                this.isBulkUploadLoader = false;
                 this._changeDetectorRef.markForCheck();
             }
             this.isLoading = false;
@@ -404,6 +409,57 @@ export class ProductsListComponent implements OnInit, OnDestroy {
 
     displayWith(value: any) {
         return value?.name;
+    }
+    onFileChange(event: any) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = (e: any) => {
+            const workbook = XLSX.read(e.target.result, { type: 'binary' });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            this.excelData = XLSX.utils.sheet_to_json(worksheet, { raw: true });
+            this._changeDetectorRef.markForCheck();
+        };
+
+        reader.readAsBinaryString(file);
+    }
+    bulkUploadProducts() {
+        this.isBulkUploadLoader = true;
+        let products = [];
+        this.excelData.forEach(element => {
+            products.push({
+                name: element.Name,
+                description: element.Description,
+                product_number: element.Product_Number,
+                price: element.Price,
+                source: element.Source,
+                url: element.Url,
+                ...(this.user.role === 'vendor' && { vendor_id: this.user.vendor.id }),
+                image_url: element.Image_Url,
+                slug: element.Slug,
+                is_active: true,
+                product_type: 'normal',
+                affiliate_url: ''
+            })
+        });
+        let payload = {
+            products: products,
+            bulk_import: true
+        }
+        this._productService.postCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+            if (res["message"]) {
+                this.getProductsList(1, res["message"], 'add');
+                this.excelData = [];
+                this.fileExcel.nativeElement.value = '';
+            } else {
+                this.isBulkUploadLoader = false;
+                this._changeDetectorRef.markForCheck();
+            }
+        }, err => {
+            this.isBulkUploadLoader = false;
+            this._changeDetectorRef.markForCheck();
+        })
     }
     /**
  * On destroy

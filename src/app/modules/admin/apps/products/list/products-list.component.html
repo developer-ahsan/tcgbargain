@@ -22,6 +22,9 @@
                     <mat-button-toggle value="Import Products">
                         Import Products
                     </mat-button-toggle>
+                    <mat-button-toggle value="Bulk Import Products">
+                        Bulk Import Products
+                    </mat-button-toggle>
                 </mat-button-toggle-group>
             </div>
             <div>
@@ -53,7 +56,7 @@
                                         Image
                                     </th>
                                     <td mat-cell *matCellDef="let element">
-                                        <div class="p-2">
+                                        <div class="p-2" *ngIf="element.image_url">
                                             <a *ngIf="!element.image_url.includes('http')"
                                                 href="{{imgUrl + element.image_url}}" target="_blank">
                                                 <img class="w-10" src="{{imgUrl + element.image_url}}"
@@ -64,6 +67,9 @@
                                                 <img class="w-10" src="{{element.image_url}}"
                                                     onError="this.src='assets/images/coming_soon.jpg'">
                                             </a>
+                                        </div>
+                                        <div class="p-2" *ngIf="!element.image_url">
+                                            <img class="w-10" onError="this.src='assets/images/coming_soon.jpg'">
                                         </div>
                                     </td>
                                 </ng-container>
@@ -348,6 +354,35 @@
                             <div class="text-center">No Products Found</div>
                         </ng-template>
                     </div>
+                </div>
+                <div *ngIf="mainScreen == 'Bulk Import Products'" class="p-5">
+                    <input type="file" #fileExcel (change)="onFileChange($event)" />
+                    <button mat-button mat-stroked-button [disabled]="isBulkUploadLoader"
+                        (click)="bulkUploadProducts()">
+                        <span *ngIf="!isBulkUploadLoader">Upload Bulk Products</span>
+                        <mat-progress-spinner *ngIf="isBulkUploadLoader" [diameter]="24" [mode]="'indeterminate'"
+                            class="ml-2"></mat-progress-spinner>
+                    </button>
+                    <table *ngIf="excelData.length > 0" class="table table-striped my-3">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Description</th>
+                                <th>Product Number</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let row of excelData">
+                                <td>{{ row.Name }}</td>
+                                <td>{{ row.Price | currency }}</td>
+                                <td>{{ row.Description }}</td>
+                                <td>{{ row.Product_Number }}</td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
                 </div>
             </div>
         </div>

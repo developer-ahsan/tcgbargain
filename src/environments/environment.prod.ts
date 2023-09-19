@@ -6,6 +6,7 @@ export const environment = {
     orderUrl: 'https://sulaim-admin.azurewebsites.net/api/order',
     storeUrl: 'https://sulaim-admin.azurewebsites.net/api/store',
     storeProductUrl: 'https://sulaim-admin.azurewebsites.net/api/store_product',
+    shopifyURL: 'https://sulaim-admin.azurewebsites.net/api/shopify_import',
     bestBuyProducts: 'https://sulaim-admin.azurewebsites.net/api/best_buy',
     vendorUrl: 'https://sulaim-admin.azurewebsites.net/api/vendor',
     productUrl: 'https://sulaim-admin.azurewebsites.net/api/product',
