@@ -19,8 +19,8 @@
                     <mat-button-toggle value="Add New Store">
                         Add New Store
                     </mat-button-toggle>
-                    <mat-button-toggle value="Walk Through">
-                        Walk Through
+                    <mat-button-toggle value="Generate API Keys">
+                        Generate API Keys
                     </mat-button-toggle>
                 </mat-button-toggle-group>
             </div>
@@ -129,6 +129,7 @@
                         </div>
                     </div>
                 </div>
+                <div *ngIf="mainScreen == 'Generate API Keys'" class="p-6"></div>
             </div>
         </div>
     </div>
