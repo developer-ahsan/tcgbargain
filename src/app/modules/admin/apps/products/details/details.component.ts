@@ -14,6 +14,7 @@ import { TasksService } from 'app/modules/admin/apps/tasks/tasks.service';
 import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { FuseComponentsComponent } from 'app/modules/admin/ui/fuse-components/fuse-components.component';
 import { ProductsService } from '../products.service';
+import { AuthService } from 'app/core/auth/auth.service';
 
 @Component({
     selector: 'tasks-details',
@@ -34,11 +35,12 @@ export class ProductsDetailsComponents implements OnInit, AfterViewInit, OnDestr
     @ViewChild("panel") panel;
     @ViewChild('topScrollAnchor') topScroll: ElementRef;
     @ViewChild('matDrawer', { static: true }) matDrawer: MatDrawer;
-
+    user: any;
     menuData: any;
     selectedProduct: any;
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
+        private _authService: AuthService,
         private _router: Router,
         private route: ActivatedRoute,
         private _productService: ProductsService,
@@ -55,6 +57,9 @@ export class ProductsDetailsComponents implements OnInit, AfterViewInit, OnDestr
      * On init
      */
     ngOnInit(): void {
+        this._authService.user$.subscribe(res => {
+            this.user = res["data"][0];
+        })
         this.getSelectedProduct();
         this._router.events.subscribe((event) => {
             if (event instanceof NavigationEnd) {
@@ -98,6 +103,27 @@ export class ProductsDetailsComponents implements OnInit, AfterViewInit, OnDestr
                         icon: 'mat_outline:info',
                         type: 'basic',
                         link: `/apps/products/${this.selectedProduct.id}/information`
+                    },
+                    {
+                        id: 'store.address',
+                        title: 'Store Versions',
+                        icon: 'mat_outline:category',
+                        type: 'basic',
+                        link: `/apps/products/${this.selectedProduct.id}/stores-products`
+                    },
+                    {
+                        id: 'store.address',
+                        title: 'Product Variants',
+                        icon: 'mat_outline:festival',
+                        type: 'basic',
+                        link: `/apps/products/${this.selectedProduct.id}/product-variants`
+                    },
+                    {
+                        id: 'store.address',
+                        title: 'Product Packages',
+                        icon: 'mat_outline:backpack',
+                        type: 'basic',
+                        link: `/apps/products/${this.selectedProduct.id}/product-packages`
                     }
                 ]
             }

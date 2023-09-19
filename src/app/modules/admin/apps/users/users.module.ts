@@ -43,6 +43,7 @@ import { FuseDateRangeModule } from '@fuse/components/date-range';
 import { UsersAddressesListComponent } from './pages/addresses/addresses.component';
 import { UsersStoresListComponent } from './pages/stores/stores.component';
 import { UserInfoListComponent } from './pages/information/information.component';
+import { OrdersListComponent } from './pages/orders/orders.component';
 
 @NgModule({
     declarations: [
@@ -51,7 +52,8 @@ import { UserInfoListComponent } from './pages/information/information.component
         UserDetailsComponents,
         UserInfoListComponent,
         UsersAddressesListComponent,
-        UsersStoresListComponent
+        UsersStoresListComponent,
+        OrdersListComponent
     ],
     imports: [
         RouterModule.forChild(userRoutes),

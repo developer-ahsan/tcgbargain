@@ -18,7 +18,7 @@ import { AuthService } from 'app/core/auth/auth.service';
 export class ClassyLayoutComponent implements OnInit, OnDestroy {
     isScreenSmall: boolean;
     navigation: Navigation;
-    user: User;
+    user: any;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
     /**
@@ -54,16 +54,69 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy {
      * On init
      */
     ngOnInit(): void {
+        this.user = this._authService.parseJwt(this._authService.accessToken);
         // Subscribe to navigation data
         this._navigationService.navigation$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((navigation: Navigation) => {
+
+                if (this.user.role == 'admin') {
+                    navigation.default.push(
+                        {
+                            id: 'users',
+                            title: 'User Management',
+                            type: 'basic',
+                            icon: 'heroicons_outline:users',
+                            link: '/apps/users'
+                        },
+                    )
+                }
+                if (this.user.role == 'vendor') {
+                    navigation.default.push(
+                        {
+                            id: 'users',
+                            title: 'Customer Management',
+                            type: 'basic',
+                            icon: 'heroicons_outline:users',
+                            link: '/apps/users'
+                        },
+                    )
+                }
+                navigation.default.push(
+                    {
+                        id: 'products',
+                        title: 'Products Management',
+                        type: 'basic',
+                        icon: 'heroicons_outline:archive',
+                        link: '/apps/products'
+                    },
+                    {
+                        id: 'stores',
+                        title: 'Stores Management',
+                        type: 'basic',
+                        icon: 'mat_outline:storefront',
+                        link: '/apps/stores'
+                    },
+                    {
+                        id: 'shopify',
+                        title: 'Shopify Management',
+                        type: 'basic',
+                        icon: 'heroicons_outline:briefcase',
+                        link: '/apps/shopify'
+                    },
+                    {
+                        id: 'categories',
+                        title: 'Categories Management',
+                        type: 'basic',
+                        icon: 'heroicons_outline:briefcase',
+                        link: '/apps/categories'
+                    },
+                );
                 this.navigation = navigation;
+
             });
 
         // Subscribe to the user service
-        this.user = this._authService.parseJwt(this._authService.accessToken);
-
 
         // Subscribe to media changes
         this._fuseMediaWatcherService.onMediaChange$

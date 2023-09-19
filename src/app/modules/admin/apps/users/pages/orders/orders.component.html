@@ -1,0 +1,48 @@
+<div class="flex-auto w-full p-5">
+    <div *ngIf="isLoading" class="p-5">
+        <ngx-skeleton-loader count="8" appearance="line" animation="pulse" [theme]="{ 
+            'background-color': '#dedede'
+          }">
+        </ngx-skeleton-loader>
+    </div>
+    <div class="rounded-2xl shadow bg-card flex flex-col lg:flex-row w-full" *ngIf="!isLoading">
+        <div *ngIf="dataSource.length > 0;else other_content" class="w-full">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>OrderID</th>
+                        <th>Products</th>
+                        <th>Shipping</th>
+                        <th>Total</th>
+                        <th>Payment Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of dataSource">
+                        <td>{{item.id}}</td>
+                        <td>
+                            <p *ngFor="let prod of item.order_items">{{prod.product_name}}</p>
+                        </td>
+                        <td>{{item.delivery_charges | currency}}</td>
+                        <td>{{item.total_amount | currency}}</td>
+                        <td>{{item.payment_status}}</td>
+                        <td>{{item.created_at | date}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <mat-paginator #paginator class="border-b sm:border-t sm:border-b-0 z-10 bg-gray-50 dark:bg-transparent"
+                [ngClass]="{'pointer-events-none': isLoading}" [length]="totalUsers" [pageIndex]="0" [pageSize]="20"
+                (page)="getNextData($event)" [hidePageSize]="true">
+            </mat-paginator>
+        </div>
+        <!-- No Store Found -->
+        <ng-template #other_content>
+            <div class="p-5">
+                <div class="font-semibold  text-center alert alert-danger">
+                    No Orders found.
+                </div>
+            </div>
+        </ng-template>
+    </div>
+</div>

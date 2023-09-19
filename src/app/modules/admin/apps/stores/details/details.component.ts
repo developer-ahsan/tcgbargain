@@ -98,6 +98,20 @@ export class StoresDetailsComponents implements OnInit, AfterViewInit, OnDestroy
                         icon: 'mat_outline:info',
                         type: 'basic',
                         link: `/apps/stores/${this.slectedStore.id}/information`
+                    },
+                    {
+                        id: 'store.products',
+                        title: 'Store Products',
+                        icon: 'mat_outline:category',
+                        type: 'basic',
+                        link: `/apps/stores/${this.slectedStore.id}/store-products`
+                    },
+                    {
+                        id: 'store.sliders',
+                        title: 'Store Sliders',
+                        icon: 'mat_outline:image',
+                        type: 'basic',
+                        link: `/apps/stores/${this.slectedStore.id}/store-sliders`
                     }
                 ]
             }

@@ -10,34 +10,15 @@ export const defaultNavigation: FuseNavigationItem[] = [
         link: '/dashboards/project',
         children: [] // This will be filled from defaultNavigation so we don't have to manage multiple sets of the same navigation
     },
-    {
-        id: 'users',
-        title: 'User Management',
-        type: 'basic',
-        icon: 'heroicons_outline:users',
-        link: '/apps/users'
-    },
-    {
-        id: 'products',
-        title: 'Products Management',
-        type: 'basic',
-        icon: 'heroicons_outline:archive',
-        link: '/apps/products'
-    },
-    {
-        id: 'stores',
-        title: 'Stores Management',
-        type: 'basic',
-        icon: 'mat_outline:storefront',
-        link: '/apps/stores'
-    },
-    {
-        id: 'vendors',
-        title: 'Vendors Management',
-        type: 'basic',
-        icon: 'heroicons_outline:briefcase',
-        link: '/apps/vendors'
-    },
+
+    // {
+    //     id: 'vendors',
+    //     title: 'Vendors Management',
+    //     type: 'basic',
+    //     icon: 'heroicons_outline:briefcase',
+    //     link: '/apps/vendors'
+    // },
+
     // {
     //     id: 'dashboards',
     //     title: 'Dashboards',

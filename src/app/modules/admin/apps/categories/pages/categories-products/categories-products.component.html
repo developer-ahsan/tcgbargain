@@ -1,0 +1,79 @@
+<div class="flex-auto w-full py-5">
+    <!-- <div class="p-5 pb-4">
+        <mat-button-toggle-group #group="matButtonToggleGroup" [value]="mainScreen"
+            (change)="calledScreen(group.value)">
+            <mat-button-toggle value="Current Products">
+                Current Products
+            </mat-button-toggle>
+            <mat-button-toggle value="Add New Products">
+                Add New Products
+            </mat-button-toggle>
+        </mat-button-toggle-group>
+    </div> -->
+    <div *ngIf="isLoading" class="px-5">
+        <ngx-skeleton-loader count="8" appearance="line" animation="pulse" [theme]="{ 
+            'background-color': '#dedede'
+          }">
+        </ngx-skeleton-loader>
+    </div>
+    <div *ngIf="!isLoading" class="px-5">
+        <!-- <div *ngIf="mainScreen == 'Current Products'"> -->
+        <div class="bg-card rounded-2xl p-5">
+            <div *ngIf="dataSource.length > 0;else other_content" class="w-full ">
+                <table class="table table-striped table-hover" datatable [dtOptions]="dtOptions">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Product Name</th>
+                            <th>Product Number</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Categories</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of dataSource">
+                            <td>
+                                <a *ngIf="!item.image_url.includes('http')" href="{{imgUrl + item.image_url}}"
+                                    target="_blank">
+                                    <img class="w-10" src="{{imgUrl + item.image_url}}"
+                                        onError="this.src='assets/images/coming_soon.jpg'">
+                                </a>
+                                <a *ngIf="item.image_url.includes('http')" href="{{item.image_url}}" target="_blank">
+                                    <img class="w-10" src="{{item.image_url}}"
+                                        onError="this.src='assets/images/coming_soon.jpg'">
+                                </a>
+                            </td>
+                            <td>{{item.name}}</td>
+                            <td>{{item.product_number}}</td>
+                            <td>{{item.price | currency}}</td>
+                            <td>
+                                <mat-icon svgIcon="heroicons_outline:x" *ngIf="!item.is_active"
+                                    class="text-red-700 icon-size-6"></mat-icon>
+                                <mat-icon svgIcon="heroicons_outline:check" *ngIf="item.is_active"
+                                    class="text-green-700 icon-size-6"></mat-icon>
+                            </td>
+                            <td>
+                                <span *ngFor="let cat of item.categories;let l=last">
+                                    <span *ngIf="cat.id">
+                                        {{cat.name}}
+                                        <span *ngIf="!l">,</span>
+                                    </span>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- No Users Found -->
+            <ng-template #other_content>
+                <div class="px-8">
+                    <div class="font-semibold  text-center alert alert-danger">
+                        No Products found.
+                    </div>
+                </div>
+            </ng-template>
+        </div>
+        <!-- </div> -->
+    </div>
+</div>

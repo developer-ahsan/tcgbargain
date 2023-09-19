@@ -6,6 +6,7 @@ import { UsersAddressesListComponent } from './pages/addresses/addresses.compone
 import { UserDetailsResolvers } from './users.resolvers';
 import { UsersStoresListComponent } from './pages/stores/stores.component';
 import { UserInfoListComponent } from './pages/information/information.component';
+import { OrdersListComponent } from './pages/orders/orders.component';
 
 export const userRoutes: Route[] = [
     {
@@ -52,6 +53,14 @@ export const userRoutes: Route[] = [
                         data: {
                             title: 'User Stores',
                             url: 'stores'
+                        }
+                    },
+                    {
+                        path: 'orders',
+                        component: OrdersListComponent,
+                        data: {
+                            title: 'User Orders',
+                            url: 'orders'
                         }
                     },
                 ]

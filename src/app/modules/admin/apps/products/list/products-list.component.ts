@@ -3,7 +3,7 @@ import { DOCUMENT } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDrawer } from '@angular/material/sidenav';
 import { fromEvent, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { finalize, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { debounceTime, map, distinctUntilChanged, filter } from "rxjs/operators";
@@ -11,6 +11,9 @@ import { ProductsService } from '../products.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { ToastrService } from 'ngx-toastr';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
+import { ImageuploadService } from 'app/imageupload.service';
+import { environment } from 'environments/environment';
+import { AuthService } from 'app/core/auth/auth.service';
 
 @Component({
     selector: 'products-list',
@@ -35,13 +38,30 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     mainScreen: string = 'Current Products';
     productForm: FormGroup;
     isAddLoader: boolean = false;
+    selectedFile: any;
+    imgUrl = environment.imgagePathProds;
+    allVendors = [];
+    isSearchLoader: boolean = false;
+    bestBuyProducts: any;
+    bestBuyPage = 1;
+    bestBuyKeyword: string = ''
+    isLoadMore: boolean = false;
+    totalBestBuyProducts: any = 0;
+    user: any;
+
+    searchCategoryCtrl = new FormControl();
+    selectedCategory: any = '';
+    isSearchingCatefory = false;
+    bestBuyCategory: any = [];
     constructor(
         private _activatedRoute: ActivatedRoute,
         private _changeDetectorRef: ChangeDetectorRef,
         @Inject(DOCUMENT) private _document: any,
         private _router: Router,
+        private _authService: AuthService,
         private _toastr: ToastrService,
         private _productService: ProductsService,
+        private _imageUpload: ImageuploadService,
         private _fuseConfirmationService: FuseConfirmationService,
     ) {
     }
@@ -54,10 +74,19 @@ export class ProductsListComponent implements OnInit, OnDestroy {
      * On init
      */
     ngOnInit(): void {
-        this.dataSource.push({ da: 1 })
+        this._authService.user$.subscribe(res => {
+            this.user = res["data"][0];
+        })
         this.isLoading = true;
         this.initForm();
+        this.getAllVendors();
         this.getProductsList(1, '', 'get');
+        this.getBestBuyCategory();
+    }
+    getAllVendors() {
+        this._productService.Vendors$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+            this.allVendors = res["data"];
+        });
     }
     initForm() {
         this.productForm = new FormGroup({
@@ -69,21 +98,28 @@ export class ProductsListComponent implements OnInit, OnDestroy {
             url: new FormControl('', Validators.required),
             vendor_id: new FormControl('', Validators.required),
             image_url: new FormControl('', Validators.required),
+            product_type: new FormControl('normal', Validators.required),
+            affiliate_url: new FormControl(''),
             slug: new FormControl('', Validators.required),
             is_active: new FormControl(true),
             product: new FormControl(true),
         });
+        if (this.user.role == 'vendor') {
+            this.productForm.patchValue({ vendor_id: this.user.vendor.id });
+        }
     }
     calledScreen(value) {
         this.mainScreen = value;
     }
     getProductsList(page, msg, type) {
-        let params = {
+        const params = {
             list: true,
-            sort_order: 'ASC',
+            sort_by: 'created_at',
+            sort_order: 'DESC',
             keyword: this.keyword,
             page: page,
-            size: 20
+            size: 50,
+            ...(this.user.role === 'vendor' && { vendor_id: this.user.vendor.id })
         }
         this._productService.getCalls(params).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             this.dataSource = res["data"];
@@ -138,27 +174,40 @@ export class ProductsListComponent implements OnInit, OnDestroy {
         this.totalUsers = this.tempRecords;
         this._changeDetectorRef.markForCheck();
     }
+    imgUpload(event) {
+        const file = event.target.files[0];
+        this.selectedFile = file;
+    }
     addNewProduct() {
-        const { name, url, description, price, slug, is_active, product_number, product, image_url, vendor_id, source } = this.productForm.getRawValue();
-        if (name == '' || price == '' || product_number == '') {
-            this.showToast('Please fill out the required fields', 'Required', 'error');
+        let image;
+        let imageName = "prod-image-" + new Date().getTime();
+        if (!this.selectedFile) {
+            this.showToast('Please select any image file', 'Image Required', 'error');
             return;
         }
         this.isAddLoader = true;
-        let payload = { name, url, description, price, slug, is_active, product_number, product, image_url, vendor_id, source };
-        this._productService.postCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
-            if (res["message"]) {
-                this.getProductsList(1, res["message"], 'add');
-            } else {
+        this._imageUpload.uploadFile(this.selectedFile, imageName).then(img => {
+            const { name, url, description, price, slug, is_active, product_number, product, image_url, vendor_id, source, product_type, affiliate_url } = this.productForm.getRawValue();
+            if (name == '' || price == '' || product_number == '' || vendor_id == '') {
+                this.showToast('Please fill out the required fields', 'Required', 'error');
+                return;
+            }
+            let payload = { name, url, description, price, slug, is_active, product_number, product, image_url: imageName, vendor_id, source, product_type, affiliate_url };
+            this._productService.postCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+                if (res["message"]) {
+                    this.getProductsList(1, res["message"], 'add');
+                } else {
+                    this.isAddLoader = false;
+                    this._changeDetectorRef.markForCheck();
+                }
+
+            }, err => {
                 this.isAddLoader = false;
                 this._changeDetectorRef.markForCheck();
-            }
+                this.showToast(err.error["message"], err.error["code"], 'error');
+            });
+        });
 
-        }, err => {
-            this.isAddLoader = false;
-            this._changeDetectorRef.markForCheck();
-            this.showToast(err.error["message"], err.error["code"], 'error');
-        })
     }
     showToast(msg, title, type) {
         if (type == 'error') {
@@ -207,6 +256,155 @@ export class ProductsListComponent implements OnInit, OnDestroy {
         })
     }
 
+    // Search Product
+    searchProductsList(page) {
+        if (page == 1) {
+            this.isSearchLoader = true;
+            this.bestBuyProducts = [];
+            this.totalBestBuyProducts = 0;
+        }
+        let params = {
+            products: true,
+            keyword: this.bestBuyKeyword,
+            categoriy_id: this.selectedCategory.id,
+            page: page,
+            size: 20
+        }
+        this._productService.getCallsBestBuy(params).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+            if (res["data"]["success"]) {
+                this.bestBuyProducts = this.bestBuyProducts.concat(res["data"]["message"]["products"]);
+                this.totalBestBuyProducts = res["data"]["message"]["total"];
+            }
+            this.dataSource = res["data"];
+            this.totalUsers = res["totalRecords"];
+            this.isLoadMore = false;
+            this.isSearchLoader = false;
+            this._changeDetectorRef.markForCheck();
+        }, err => {
+            this.isSearchLoader = false;
+            this.isLoadMore = false;
+            this._changeDetectorRef.markForCheck();
+        });
+    }
+    loadMoreBestBuyProduct() {
+        this.bestBuyPage++;
+        this.isLoadMore = true;
+        this.searchProductsList(this.bestBuyPage);
+    }
+
+    addNewBestProduct(products: any) {
+        const { name, longDescription, sku, regularPrice, source, url, active, affiliateUrl, shippingCost, categoryPath, productVariations, image, images, weight, width, height, lengthInMinutes } = products;
+        let vendorId = null;
+        if (this.user.role == 'vendor') {
+            vendorId = this.user.vendor.id;
+        }
+        let imagesData = [];
+        images.forEach(element => {
+            imagesData.push(element.href);
+        });
+        let categories = [];
+        categoryPath.forEach((element, index) => {
+            if (index > 0) {
+                if (categories.length < 2) {
+                    categories.push(element.name);
+                }
+            }
+        });
+        let variantions = [];
+        productVariations.forEach(element => {
+            element.variantions.forEach(item => {
+                variantions.push({
+                    size: '',
+                    color: item.value,
+                    price_adjustment: 0,
+                    stock: 0,
+                    sku: element.sku
+                });
+            });
+        });
+        let payload = {
+            name: name,
+            description: longDescription,
+            product_number: sku,
+            price: regularPrice,
+            source: source,
+            url: url,
+            image_url: image,
+            "slug": "product-slug",
+            is_active: active,
+            product_type: "affiliate",
+            affiliate_url: affiliateUrl,
+            delivery_rate: shippingCost,
+            categories: categories,
+            variants: variantions,
+            images: imagesData,
+            packaging: {
+                size_length: lengthInMinutes,
+                size_width: width,
+                size_height: height,
+                weight: weight
+            },
+            best_buy_product: true,
+            vendor_id: vendorId
+        }
+        products.addLoader = true;
+
+        this._productService.postCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+            if (res["message"]) {
+                this.getProductsList(1, res["message"], 'add');
+            } else {
+                this.isAddLoader = false;
+                this._changeDetectorRef.markForCheck();
+            }
+
+        }, err => {
+            this.isAddLoader = false;
+            this._changeDetectorRef.markForCheck();
+            this.showToast(err.error["message"], err.error["code"], 'error');
+        });
+
+    }
+
+    getBestBuyCategory() {
+        let params;
+        this.searchCategoryCtrl.valueChanges.pipe(
+            filter((res: any) => {
+                params = {
+                    categories: true
+                }
+                return res !== null && res.length >= 3
+            }),
+            distinctUntilChanged(),
+            debounceTime(300),
+            tap(() => {
+                this.bestBuyCategory = [];
+                this.isSearchingCatefory = true;
+                this._changeDetectorRef.markForCheck();
+            }),
+            switchMap(value => this._productService.getCallsBestBuy(params)
+                .pipe(
+                    finalize(() => {
+                        this.isSearchingCatefory = false
+                        this._changeDetectorRef.markForCheck();
+                    }),
+                )
+            )
+        ).subscribe((res: any) => {
+            if (res["data"]["success"]) {
+                res["data"]["message"].categories.forEach(element => {
+                    this.bestBuyCategory.push(element);
+                });
+                this._changeDetectorRef.markForCheck();
+            }
+        });
+    }
+    onSelected(ev) {
+        this.selectedCategory = ev.option.value;
+    }
+
+    displayWith(value: any) {
+        return value?.name;
+    }
     /**
  * On destroy
  */

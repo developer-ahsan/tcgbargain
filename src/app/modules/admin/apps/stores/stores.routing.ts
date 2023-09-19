@@ -5,6 +5,8 @@ import { UsersStoresListComponent } from './pages/stores/stores.component';
 import { StoresComponent } from './stores.component';
 import { StoreInfoListComponent } from './pages/information/information.component';
 import { StoreDetailsResolvers } from './stores.resolvers';
+import { StoreProductsListComponent } from './pages/store-products/store-products.component';
+import { SlidersListComponent } from './pages/sliders/sliders.component';
 
 export const storeRoutes: Route[] = [
     {
@@ -43,6 +45,22 @@ export const storeRoutes: Route[] = [
                         data: {
                             title: 'User Stores',
                             url: 'stores'
+                        }
+                    },
+                    {
+                        path: 'store-products',
+                        component: StoreProductsListComponent,
+                        data: {
+                            title: 'Store Products',
+                            url: 'store-products'
+                        }
+                    },
+                    {
+                        path: 'store-sliders',
+                        component: SlidersListComponent,
+                        data: {
+                            title: 'Store Sliders',
+                            url: 'store-sliders'
                         }
                     },
                 ]

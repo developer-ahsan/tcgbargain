@@ -11,6 +11,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { ToastrService } from 'ngx-toastr';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { ProductsService } from '../../products.service';
+import { AuthService } from 'app/core/auth/auth.service';
 
 @Component({
     selector: 'stores-list',
@@ -23,7 +24,7 @@ export class UsersStoresListComponent implements OnInit, OnDestroy {
     @ViewChild('paginator') paginator: MatPaginator;
     // List
     private _unsubscribeAll: Subject<any> = new Subject<any>();
-    displayedColumns: string[] = ['name', 'email', 'username', 'role', 'created_at', 'action'];
+    displayedColumns: string[] = ['id', 'name', 'description', 'created_at', 'action'];
     totalUsers: number = 0;
     dataSource = [];
     tempDataSource = [];
@@ -32,19 +33,33 @@ export class UsersStoresListComponent implements OnInit, OnDestroy {
     isLoading: boolean = true;
     keyword = '';
     isSearching: boolean = false;
-    mainScreen: string = 'Current Store';
+    mainScreen: string = 'Store Products';
     userForm: FormGroup;
     isAddLoader: boolean = false;
     editUserForm: FormGroup;
     isEditBoolean: boolean = false;
     isEditLoader: boolean = false;
+
+    selectedProduct: any;
+    isStoreLoader: boolean = false;
+    isNotStoreLoader: boolean = false;
+    storeProducts: any = [];
+    totalStoreProd = 0;
+    prodPage = 1;
+    prodLoadMore: boolean = false;
+    prodNotPage = 1;
+    storeNotProducts: any = [];
+    totalNotStoreProd = 0;
+    prodNotLoadMore: boolean = false;
+    user: any;
     constructor(
         private _activatedRoute: ActivatedRoute,
         private _changeDetectorRef: ChangeDetectorRef,
         @Inject(DOCUMENT) private _document: any,
         private _router: Router,
         private _toastr: ToastrService,
-        private _userService: ProductsService,
+        private _productService: ProductsService,
+        private _authService: AuthService,
         private _fuseConfirmationService: FuseConfirmationService,
     ) {
     }
@@ -57,66 +72,47 @@ export class UsersStoresListComponent implements OnInit, OnDestroy {
      * On init
      */
     ngOnInit(): void {
-        this.dataSource.push({ da: 1 })
+        this._authService.user$.subscribe(res => {
+            this.user = res["data"][0];
+        })
         this.isLoading = true;
-        this.initForm();
-        this.getUsersList(1, '', 'get');
-    }
-    initForm() {
-        this.userForm = new FormGroup({
-            name: new FormControl('', Validators.required),
-            email: new FormControl('', Validators.required),
-            password: new FormControl('', Validators.required),
-            username: new FormControl('', Validators.required),
-            role: new FormControl('admin', Validators.required),
-            user: new FormControl(true),
-        });
-        this.editUserForm = new FormGroup({
-            id: new FormControl('', Validators.required),
-            name: new FormControl('', Validators.required),
-            email: new FormControl('', Validators.required),
-            password: new FormControl(null, Validators.required),
-            username: new FormControl('', Validators.required),
-            role: new FormControl('', Validators.required)
-        });
+        this.getSelectedProduct();
     }
     calledScreen(value) {
         this.mainScreen = value;
-    }
-    getUsersList(page, msg, type) {
-        let params = {
-            list: true,
-            sort_by: 'email',
-            sort_order: 'ASC',
-            keyword: this.keyword,
-            page: page,
-            size: 20
+        if (value == 'Add New Store Product') {
+            if (this.storeNotProducts.length == 0) {
+                this.isNotStoreLoader = true;
+                this.getNotProductsStore(1);
+            }
         }
-        this._userService.getCalls(params).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
-            this.dataSource = res["data"];
-            this.totalUsers = res["totalRecords"];
-            if (this.keyword == '') {
-                this.tempDataSource = res["data"];
-                this.tempRecords = res["totalRecords"];
-            }
+    }
+    getSelectedProduct() {
+        this._productService.Product$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+            this.selectedProduct = res["data"][0];
+            this.getProductsStore(1, '', 'get');
+        });
+    }
+    getProductsStore(page, msg, type) {
+        let params = {
+            page: page,
+            is_product_id: this.selectedProduct.id,
+            list: true,
+            ...(this.user.role === 'vendor' && { vendor_id: this.user.vendor.id })
+        }
+        this._productService.getCallsStore(params).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+            this.storeProducts = res["data"];
+            this.totalStoreProd = res["totalRecords"];
             if (type == 'add') {
-                this.showToast(msg, 'Created', 'success');
-                this.userForm.reset();
-                this.initForm();
-                this.mainScreen = 'Current Users';
+                this.storeNotProducts = [];
                 this.isAddLoader = false;
-                this._changeDetectorRef.markForCheck();
-            }
-            if (type == 'edit') {
-                this.showToast(msg, 'Updated', 'success');
-                this.isEditLoader = false;
+                this.mainScreen = 'Store Products';
+                this.showToast(msg, 'Add Store Product', 'success');
                 this._changeDetectorRef.markForCheck();
             }
             this.isLoading = false;
-            this.isSearching = false;
             this._changeDetectorRef.markForCheck();
         }, err => {
-            this.isSearching = false;
             this.isLoading = false;
             this._changeDetectorRef.markForCheck();
         });
@@ -129,49 +125,64 @@ export class UsersStoresListComponent implements OnInit, OnDestroy {
         } else {
             this.page--;
         };
-        this.getUsersList(this.page, '', 'get');
+        this.getProductsStore(this.page, '', 'get');
     };
-
-    searchUser(value) {
-        if (this.dataSource.length > 0) {
-            this.paginator.firstPage();
-        }
-        this.keyword = value;
-        this.isSearching = true;
-        this._changeDetectorRef.markForCheck();
-        this.getUsersList(1, '', 'get');
+    getNextStoreProds() {
+        this.prodNotPage++;
+        this.prodNotLoadMore = true;
+        this.getNotProductsStore(this.prodNotPage);
     }
-    resetSearch() {
-        this.keyword = '';
-        if (this.dataSource.length > 0) {
-            this.paginator.firstPage();
+    getNotProductsStore(page) {
+        if (page == 1) {
+            this.storeNotProducts = [];
         }
-        this.dataSource = this.tempDataSource;
-        this.totalUsers = this.tempRecords;
-        this._changeDetectorRef.markForCheck();
+        let params = {
+            page: page,
+            not_product_id: this.selectedProduct.id,
+            list: true,
+            ...(this.user.role === 'vendor' && { vendor_id: this.user.vendor.id })
+        }
+        this._productService.getCallsStore(params).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+            this.storeNotProducts = this.storeNotProducts.concat(res["data"]);
+            this.totalNotStoreProd = res["totalRecords"]
+            this.prodNotLoadMore = false;
+            this.isNotStoreLoader = false;
+            this._changeDetectorRef.markForCheck();
+        }, err => {
+            this.prodNotLoadMore = false;
+            this.isNotStoreLoader = false;
+            this._changeDetectorRef.markForCheck();
+        });
     }
-    addNewUser() {
-        const { name, email, password, username, role, user } = this.userForm.getRawValue();
-        if (name == '' || email == '' || password == '' || username == '') {
-            this.showToast('Please fill out the required fields', 'Required', 'error');
+    addNewProduct() {
+        let prods = [];
+        this.storeNotProducts.forEach(element => {
+            if (element.checked) {
+                prods.push(element.id);
+            }
+        });
+        if (prods.length == 0) {
+            this.showToast('Please select any store to add product', 'Add Store Product', 'error');
             return;
         }
         this.isAddLoader = true;
-        let payload = { name, email, password, username, role, user };
-        this._userService.postCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+        let payload = {
+            product_id: this.selectedProduct.id,
+            store_id: prods,
+            store_products: true
+        }
+        this._productService.postCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             if (res["message"]) {
-                this.getUsersList(1, res["message"], 'add');
+                this.getProductsStore(1, res["message"], 'add');
             } else {
                 this.isAddLoader = false;
                 this._changeDetectorRef.markForCheck();
             }
-
         }, err => {
-            console.log(err)
             this.isAddLoader = false;
             this._changeDetectorRef.markForCheck();
             this.showToast(err.error["message"], err.error["code"], 'error');
-        })
+        });
     }
     showToast(msg, title, type) {
         if (type == 'error') {
@@ -180,10 +191,10 @@ export class UsersStoresListComponent implements OnInit, OnDestroy {
             this._toastr.success(msg, title);
         }
     }
-    deleteUser(user) {
+    deleteStore(store) {
         const confirmation = this._fuseConfirmationService.open({
-            title: 'Delete user',
-            message: 'Are you sure you want to delete this user? This action cannot be undone!',
+            title: 'Delete Store',
+            message: 'Are you sure you want to delete this store? This action cannot be undone!',
             actions: {
                 confirm: {
                     label: 'Delete'
@@ -192,61 +203,33 @@ export class UsersStoresListComponent implements OnInit, OnDestroy {
         });
         confirmation.afterClosed().subscribe((result) => {
             if (result == 'confirmed') {
-                user.delLoader = true;
-                this.deleteUserApi(user);
+                store.delLoader = true;
+                this.deleteUserApi(store);
                 this._changeDetectorRef.markForCheck();
             }
         });
     }
-    deleteUserApi(user) {
+    deleteUserApi(store) {
         let payload = {
-            id: user.id,
-            user: true
+            store_id: store.id,
+            product_id: this.selectedProduct.id,
+            store_product: true
         }
-        this._userService.deleteCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+        this._productService.deleteCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             if (res["message"]) {
                 this.showToast(res["message"], 'Deleted', 'success');
-                this.dataSource = this.dataSource.filter(u => u.id != user.id);
-                this.totalUsers--;
+                this.storeProducts = this.storeProducts.filter(u => u.id != store.id);
+                this.totalStoreProd--;
                 this._changeDetectorRef.markForCheck();
             } else {
-                user.delLoader = false;
+                store.delLoader = false;
                 this._changeDetectorRef.markForCheck();
             }
         }, err => {
-            user.delLoader = false;
+            store.delLoader = false;
             this._changeDetectorRef.markForCheck();
             this.showToast(err.error["message"], err.error["code"], 'error');
         })
-    }
-    editUser(user) {
-        this.isEditBoolean = true;
-        this.editUserForm.patchValue(user);
-    }
-    updateUser() {
-        const { id, name, email, password, username, role } = this.editUserForm.getRawValue();
-        if (name == '' || email == '' || username == '') {
-            this.showToast('Please fill out the required fields', 'Required', 'error');
-            return;
-        }
-        this.isEditLoader = true;
-        let payload = { id, name, email, password, username, role, user: true };
-        this._userService.putCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
-            if (res["message"]) {
-                this.getUsersList(1, res["message"], 'edit');
-            } else {
-                this.isEditLoader = false;
-                this._changeDetectorRef.markForCheck();
-            }
-
-        }, err => {
-            this.isEditLoader = false;
-            this._changeDetectorRef.markForCheck();
-            this.showToast(err.error["message"], err.error["code"], 'error');
-        })
-    }
-    backToList() {
-        this.isEditBoolean = false;
     }
     /**
  * On destroy

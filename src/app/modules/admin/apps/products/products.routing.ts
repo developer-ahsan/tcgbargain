@@ -4,13 +4,16 @@ import { ProductsDetailsComponents } from './details/details.component';
 import { UsersStoresListComponent } from './pages/stores/stores.component';
 import { ProductsComponent } from './products.component';
 import { ProductInfoListComponent } from './pages/information/information.component';
-import { ProductDetailsResolvers } from './products.resolvers';
+import { AllVendorsResolvers, ProductDetailsResolvers } from './products.resolvers';
+import { ProductVariantsComponent } from './pages/product-variants/product-variants.component';
+import { ProductPackagesComponent } from './pages/product-packages/product-packages.component';
 
 export const storeRoutes: Route[] = [
     {
         path: '',
         component: ProductsComponent,
         resolve: {
+            vendors: AllVendorsResolvers
         },
         children: [
             {
@@ -38,14 +41,31 @@ export const storeRoutes: Route[] = [
                         }
                     },
                     {
-                        path: 'stores',
+                        path: 'stores-products',
                         component: UsersStoresListComponent,
                         data: {
-                            title: 'User Stores',
-                            url: 'stores'
+                            title: 'Store Products',
+                            url: 'stores-products'
+                        }
+                    },
+                    {
+                        path: 'product-variants',
+                        component: ProductVariantsComponent,
+                        data: {
+                            title: 'Product Variants',
+                            url: 'product-variants'
+                        }
+                    },
+                    {
+                        path: 'product-packages',
+                        component: ProductPackagesComponent,
+                        data: {
+                            title: 'Product Packages',
+                            url: 'product-packages'
                         }
                     },
                 ]
+
             }
         ]
     }

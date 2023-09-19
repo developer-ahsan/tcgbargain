@@ -14,6 +14,7 @@ import { TasksService } from 'app/modules/admin/apps/tasks/tasks.service';
 import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { FuseComponentsComponent } from 'app/modules/admin/ui/fuse-components/fuse-components.component';
 import { UsersService } from '../users.service';
+import { AuthService } from 'app/core/auth/auth.service';
 
 @Component({
     selector: 'tasks-details',
@@ -37,10 +38,12 @@ export class UserDetailsComponents implements OnInit, AfterViewInit, OnDestroy {
 
     menuData: any;
     selectedUser: any;
+    user: any;
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
         private _router: Router,
         private route: ActivatedRoute,
+        private _authService: AuthService,
         private _userService: UsersService,
         private _fuseMediaWatcherService: FuseMediaWatcherService,
     ) {
@@ -55,6 +58,9 @@ export class UserDetailsComponents implements OnInit, AfterViewInit, OnDestroy {
      * On init
      */
     ngOnInit(): void {
+        this._authService.user$.subscribe(res => {
+            this.user = res["data"][0];
+        })
         this.getSelectedUser();
         this._router.events.subscribe((event) => {
             if (event instanceof NavigationEnd) {
@@ -86,36 +92,56 @@ export class UserDetailsComponents implements OnInit, AfterViewInit, OnDestroy {
         });
     }
     routesInitialize() {
-        this.menuData = [
-            {
-                id: 'user',
-                title: 'User Details',
-                type: 'group',
-                children: [
-                    {
-                        id: 'user.address',
-                        title: 'Information',
-                        icon: 'mat_outline:info',
-                        type: 'basic',
-                        link: `/apps/users/${this.selectedUser.id}/information`
-                    },
-                    {
-                        id: 'user.address',
-                        title: 'Addresses',
-                        icon: 'mat_outline:maps_home_work',
-                        type: 'basic',
-                        link: `/apps/users/${this.selectedUser.id}/addresses`
-                    },
-                    {
-                        id: 'user.stores',
-                        icon: 'mat_outline:store',
-                        title: 'Stores',
-                        type: 'basic',
-                        link: `/apps/users/${this.selectedUser.id}/stores`
-                    }
-                ]
-            }
-        ];
+        if (this.user.role == 'admin') {
+            this.menuData = [
+                {
+                    id: 'user',
+                    title: 'User Details',
+                    type: 'group',
+                    children: [
+                        {
+                            id: 'user.address',
+                            title: 'Information',
+                            icon: 'mat_outline:info',
+                            type: 'basic',
+                            link: `/apps/users/${this.selectedUser.id}/information`
+                        },
+                        {
+                            id: 'user.address',
+                            title: 'Addresses',
+                            icon: 'mat_outline:maps_home_work',
+                            type: 'basic',
+                            link: `/apps/users/${this.selectedUser.id}/addresses`
+                        },
+                        {
+                            id: 'user.stores',
+                            icon: 'mat_outline:store',
+                            title: 'Stores',
+                            type: 'basic',
+                            link: `/apps/users/${this.selectedUser.id}/stores`
+                        }
+                    ]
+                }
+            ];
+        }
+        else {
+            this.menuData = [
+                {
+                    id: 'store',
+                    title: 'Consumer Details',
+                    type: 'group',
+                    children: [
+                        {
+                            id: 'store.address',
+                            title: 'User Orders',
+                            icon: 'mat_outline:info',
+                            type: 'basic',
+                            link: `/apps/users/${this.selectedUser.id}/orders`
+                        },
+                    ]
+                }
+            ];
+        }
     }
 
     /**

@@ -3,7 +3,7 @@
     <div class="bg-white relative bg-light  sm:items-center sm:justify-between py-2 px-6 md:px-8 border-b">
         <div class="mt-2 py-4">
             <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
-                Stores Management
+                Products Management
             </h2>
         </div>
 
@@ -18,6 +18,9 @@
                     </mat-button-toggle>
                     <mat-button-toggle value="Add New Products">
                         Add New Products
+                    </mat-button-toggle>
+                    <mat-button-toggle value="Import Products">
+                        Import Products
                     </mat-button-toggle>
                 </mat-button-toggle-group>
             </div>
@@ -51,9 +54,16 @@
                                     </th>
                                     <td mat-cell *matCellDef="let element">
                                         <div class="p-2">
-                                            <img class="w-10"
-                                                src="https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aHVtYW58ZW58MHx8MHx8fDA%3D&w=1000&q=80"
-                                                onError="this.src='assets/images/coming_soon.jpg'">
+                                            <a *ngIf="!element.image_url.includes('http')"
+                                                href="{{imgUrl + element.image_url}}" target="_blank">
+                                                <img class="w-10" src="{{imgUrl + element.image_url}}"
+                                                    onError="this.src='assets/images/coming_soon.jpg'">
+                                            </a>
+                                            <a *ngIf="element.image_url.includes('http')" href="{{element.image_url}}"
+                                                target="_blank">
+                                                <img class="w-10" src="{{element.image_url}}"
+                                                    onError="this.src='assets/images/coming_soon.jpg'">
+                                            </a>
                                         </div>
                                     </td>
                                 </ng-container>
@@ -175,12 +185,12 @@
                                     placeholder="Enter Product Description"></textarea>
                             </mat-form-field>
                         </div>
-                        <div class="col-12 col-md-6">
+                        <!-- <div class="col-12 col-md-6">
                             <mat-form-field class="w-full" appearance="fill">
                                 <mat-label>Image*</mat-label>
                                 <input matInput placeholder="Enter Image URL" formControlName="image_url">
                             </mat-form-field>
-                        </div>
+                        </div> -->
                         <div class="col-12 col-md-6">
                             <mat-form-field class="w-full" appearance="fill">
                                 <mat-label>Source*</mat-label>
@@ -195,12 +205,42 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>Product Type*</mat-label>
+                                <mat-select formControlName="product_type">
+                                    <mat-option [value]="'normal'">Normal</mat-option>
+                                    <mat-option [value]="'affiliate'">Affiliate</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-md-6" *ngIf="productForm.get('product_type').value == 'affiliate'">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>Affiliate Url</mat-label>
+                                <input matInput placeholder="Enter Slug" formControlName="affiliate_url">
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-md-6" *ngIf="user.role == 'admin'">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>Vendor*</mat-label>
+                                <mat-select formControlName="vendor_id">
+                                    <mat-option *ngFor="let item of allVendors"
+                                        [value]="item.id">{{item.name}}</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full" appearance="fill">
                                 <mat-label>Active*</mat-label>
                                 <mat-select formControlName="is_active">
                                     <mat-option [value]="true">Active</mat-option>
                                     <mat-option [value]="false">Disabled</mat-option>
                                 </mat-select>
                             </mat-form-field>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <mat-label>Image*</mat-label>
+                            <br>
+                            <input placeholder="Enter Image URL" type="file" accept="image/*"
+                                (change)="imgUpload($event)">
                         </div>
                         <div class="text-right col-12">
                             <button class="min-w-50" mat-stroked-button [matTooltip]="'Add New Products'"
@@ -211,6 +251,102 @@
                                     [mode]="'indeterminate'"></mat-progress-spinner>
                             </button>
                         </div>
+                    </div>
+                </div>
+                <div *ngIf="mainScreen == 'Import Products'" class="p-5">
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full">
+                                <mat-label>Search Keyword </mat-label>
+                                <input matInput placeholder="Search Keyword" [(ngModel)]="bestBuyKeyword">
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full">
+                                <mat-label>Search Category</mat-label>
+                                <input matInput placeholder="Search Category" matTooltip="Search Category by name"
+                                    [matAutocomplete]="auto" [formControl]="searchCategoryCtrl">
+                                <mat-autocomplete class="w-full" #auto="matAutocomplete"
+                                    (optionSelected)="onSelected($event)" [displayWith]="displayWith">
+                                    <mat-option *ngIf="isSearchingCatefory" class="is-loading">Loading...</mat-option>
+                                    <ng-container *ngIf="!isSearchingCatefory">
+                                        <mat-option *ngFor="let item of bestBuyCategory" [value]="item">
+                                            <span>{{item.name}}</span>
+                                        </mat-option>
+                                    </ng-container>
+                                </mat-autocomplete>
+                                <!-- <mat-select matInput [(ngModel)]="selectedCategory">
+                                    <mat-option *ngFor="let item of bestBuyCategory"
+                                        [value]="item.id">{{item.name}}</mat-option>
+                                </mat-select> -->
+                            </mat-form-field>
+                        </div>
+                        <div class="text-right col-12">
+                            <button [disabled]="isSearchLoader" class="min-w-50" mat-stroked-button
+                                [matTooltip]="'Search Products'" (click)="searchProductsList(1)">
+                                <mat-icon svgIcon="mat_outline:search" *ngIf="!isSearchLoader"></mat-icon>
+                                <span class="ml-2" *ngIf="!isSearchLoader"> Search Product </span>
+                                <mat-progress-spinner *ngIf="isSearchLoader" [diameter]="24"
+                                    [mode]="'indeterminate'"></mat-progress-spinner>
+                            </button>
+                        </div>
+                    </div>
+                    <div *ngIf="isSearchLoader" class="my-5">
+                        <ngx-skeleton-loader count="8" appearance="line" animation="pulse" [theme]="{ 
+                            'background-color': '#dedede'
+                          }">
+                        </ngx-skeleton-loader>
+                    </div>
+                    <div *ngIf="!isSearchLoader && bestBuyProducts" class="my-5">
+                        <ng-container *ngIf="bestBuyProducts.length > 0;else noFound">
+                            <!-- Content to show if the condition is true -->
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Image</th>
+                                        <th>Name</th>
+                                        <th>Price</th>
+                                        <th>SKU</th>
+                                        <th>Reviews</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of bestBuyProducts">
+                                        <td>
+                                            <a href="{{item.image}}" target="_blank">
+                                                <img class="w-10" src="{{item.image}}"
+                                                    onError="this.src='assets/images/coming_soon.jpg'">
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{{item.url}}" target="_blank">{{item.name}}</a>
+                                        </td>
+                                        <td>{{item.regularPrice | currency}}</td>
+                                        <td>{{item.sku}}</td>
+                                        <td>{{item.customerReviewCount}}</td>
+                                        <td>
+                                            <button mat-button mat-stroked-button class="min-w-40"
+                                                [disabled]="item.addLoader">
+                                                <span (click)="addNewBestProduct(item)" *ngIf="!item.addLoader">Add to
+                                                    products</span>
+                                                <mat-progress-spinner *ngIf="item.addLoader" [diameter]="24"
+                                                    [mode]="'indeterminate'" class="ml-2"></mat-progress-spinner>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div *ngIf="bestBuyProducts.length < totalBestBuyProducts" class="flex justify-center my-2">
+                                <p (click)="loadMoreBestBuyProduct()" *ngIf="!isLoadMore">Load More</p>
+                                <mat-progress-spinner *ngIf="isLoadMore" [diameter]="24" [mode]="'indeterminate'"
+                                    class="ml-2"></mat-progress-spinner>
+                            </div>
+                        </ng-container>
+
+                        <ng-template #noFound>
+                            <div class="text-center">No Products Found</div>
+                        </ng-template>
                     </div>
                 </div>
             </div>

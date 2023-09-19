@@ -40,13 +40,19 @@ import { ProductsComponent } from './products.component';
 import { ProductsListComponent } from './list/products-list.component';
 import { ProductsDetailsComponents } from './details/details.component';
 import { ProductInfoListComponent } from './pages/information/information.component';
+import { UsersStoresListComponent } from './pages/stores/stores.component';
+import { ProductVariantsComponent } from './pages/product-variants/product-variants.component';
+import { ProductPackagesComponent } from './pages/product-packages/product-packages.component';
 
 @NgModule({
     declarations: [
         ProductsComponent,
         ProductsListComponent,
         ProductsDetailsComponents,
-        ProductInfoListComponent
+        ProductInfoListComponent,
+        UsersStoresListComponent,
+        ProductVariantsComponent,
+        ProductPackagesComponent
     ],
     imports: [
         RouterModule.forChild(storeRoutes),

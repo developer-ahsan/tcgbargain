@@ -11,6 +11,8 @@ import { StoresService } from '../stores.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { ToastrService } from 'ngx-toastr';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
+import { AuthService } from 'app/core/auth/auth.service';
+import { ImageuploadService } from 'app/imageupload.service';
 
 @Component({
     selector: 'stores-list',
@@ -35,12 +37,17 @@ export class StoresListComponent implements OnInit, OnDestroy {
     mainScreen: string = 'Current Stores';
     storeForm: FormGroup;
     isAddLoader: boolean = false;
+    user: any;
+    selectedFile: any;
+
     constructor(
         private _activatedRoute: ActivatedRoute,
         private _changeDetectorRef: ChangeDetectorRef,
         @Inject(DOCUMENT) private _document: any,
         private _router: Router,
         private _toastr: ToastrService,
+        private _authService: AuthService,
+        private _imageUpload: ImageuploadService,
         private _storeService: StoresService,
         private _fuseConfirmationService: FuseConfirmationService,
     ) {
@@ -54,7 +61,9 @@ export class StoresListComponent implements OnInit, OnDestroy {
      * On init
      */
     ngOnInit(): void {
-        this.dataSource.push({ da: 1 })
+        this._authService.user$.subscribe(res => {
+            this.user = res["data"][0];
+        })
         this.isLoading = true;
         this.initForm();
         this.getStoresList(1, '', 'get');
@@ -66,21 +75,25 @@ export class StoresListComponent implements OnInit, OnDestroy {
             url: new FormControl('', Validators.required),
             primary_color: new FormControl('#00000', Validators.required),
             secondary_color: new FormControl('#FFFFF', Validators.required),
+            vendor_id: new FormControl(null),
             is_active: new FormControl(true),
             store: new FormControl(true),
         });
+        this.storeForm.patchValue({ vendor_id: this.user.vendor.id });
     }
     calledScreen(value) {
         this.mainScreen = value;
     }
     getStoresList(page, msg, type) {
-        let params = {
+        const params = {
             list: true,
             sort_order: 'ASC',
             keyword: this.keyword,
-            page: page,
-            size: 20
-        }
+            page,
+            size: 20,
+            ...(this.user.role === 'vendor' && { vendor_id: this.user.vendor.id })
+        };
+
         this._storeService.getCalls(params).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             this.dataSource = res["data"];
             this.totalUsers = res["totalRecords"];
@@ -134,27 +147,41 @@ export class StoresListComponent implements OnInit, OnDestroy {
         this.totalUsers = this.tempRecords;
         this._changeDetectorRef.markForCheck();
     }
+
+    imgUpload(event) {
+        const file = event.target.files[0];
+        this.selectedFile = file;
+    }
+
     addNewStore() {
-        const { title, url, description, primary_color, secondary_color, is_active, store } = this.storeForm.getRawValue();
-        if (title == '' || url == '' || description == '') {
-            this.showToast('Please fill out the required fields', 'Required', 'error');
+        let imageName = "store-image-" + new Date().getTime();
+        if (!this.selectedFile) {
+            this.showToast('Please select any image file', 'Image Required', 'error');
             return;
         }
         this.isAddLoader = true;
-        let payload = { title, url, description, primary_color, secondary_color, is_active, store };
-        this._storeService.postCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
-            if (res["message"]) {
-                this.getStoresList(1, res["message"], 'add');
-            } else {
+        this._imageUpload.uploadFile(this.selectedFile, imageName).then(img => {
+            const { title, url, description, primary_color, secondary_color, is_active, store, vendor_id } = this.storeForm.getRawValue();
+            if (title == '' || url == '' || description == '') {
+                this.showToast('Please fill out the required fields', 'Required', 'error');
+                return;
+            }
+            this.isAddLoader = true;
+            let payload = { title, url, description, primary_color, secondary_color, is_active, store, vendor_id, logo_url: imageName };
+            this._storeService.postCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+                if (res["message"]) {
+                    this.getStoresList(1, res["message"], 'add');
+                } else {
+                    this.isAddLoader = false;
+                    this._changeDetectorRef.markForCheck();
+                }
+
+            }, err => {
                 this.isAddLoader = false;
                 this._changeDetectorRef.markForCheck();
-            }
-
-        }, err => {
-            this.isAddLoader = false;
-            this._changeDetectorRef.markForCheck();
-            this.showToast(err.error["message"], err.error["code"], 'error');
-        })
+                this.showToast(err.error["message"], err.error["code"], 'error');
+            })
+        });
     }
     showToast(msg, title, type) {
         if (type == 'error') {

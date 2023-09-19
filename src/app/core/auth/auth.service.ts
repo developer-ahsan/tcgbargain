@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { catchError, retry, switchMap, tap } from 'rxjs/operators';
 import { AuthUtils } from 'app/core/auth/auth.utils';
 import { UserService } from 'app/core/user/user.service';
 import { environment } from 'environments/environment';
@@ -9,6 +9,7 @@ import { environment } from 'environments/environment';
 @Injectable()
 export class AuthService {
     private _authenticated: boolean = false;
+    private _userDetail: BehaviorSubject<any[] | null> = new BehaviorSubject<any[]>(null);
 
     /**
      * Constructor
@@ -121,6 +122,19 @@ export class AuthService {
         this._userService.user = user;
         this._authenticated = true;
         return of(true);
+    }
+    get user$(): Observable<any[]> {
+        return this._userDetail.asObservable();
+    };
+    getUserInfo(): Observable<any[]> {
+        let params = {
+            info: true
+        }
+        return this._httpClient.get<any[]>(environment.userUrl, {
+            params: params
+        }).pipe(retry(3), tap((response: any) => {
+            this._userDetail.next(response);
+        }));
     }
     /**
      * Sign out

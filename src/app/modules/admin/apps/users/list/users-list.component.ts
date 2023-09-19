@@ -11,6 +11,7 @@ import { UsersService } from '../users.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { ToastrService } from 'ngx-toastr';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
+import { AuthService } from 'app/core/auth/auth.service';
 
 @Component({
     selector: 'users-list',
@@ -34,10 +35,13 @@ export class UsersListComponent implements OnInit, OnDestroy {
     isSearching: boolean = false;
     mainScreen: string = 'Current Users';
     userForm: FormGroup;
+    vendorForm: FormGroup;
     isAddLoader: boolean = false;
+    user: any;
     constructor(
         private _activatedRoute: ActivatedRoute,
         private _changeDetectorRef: ChangeDetectorRef,
+        private _authService: AuthService,
         @Inject(DOCUMENT) private _document: any,
         private _router: Router,
         private _toastr: ToastrService,
@@ -54,7 +58,9 @@ export class UsersListComponent implements OnInit, OnDestroy {
      * On init
      */
     ngOnInit(): void {
-        this.dataSource.push({ da: 1 })
+        this._authService.user$.subscribe(res => {
+            this.user = res["data"][0];
+        })
         this.isLoading = true;
         this.initForm();
         this.getUsersList(1, '', 'get');
@@ -68,6 +74,13 @@ export class UsersListComponent implements OnInit, OnDestroy {
             role: new FormControl('admin', Validators.required),
             user: new FormControl(true),
         });
+        this.vendorForm = new FormGroup({
+            vendorname: new FormControl('', Validators.required),
+            description: new FormControl('', Validators.required),
+            commission_rate: new FormControl('', Validators.required),
+            slug: new FormControl('', Validators.required),
+            is_active: new FormControl(true),
+        });
     }
     calledScreen(value) {
         this.mainScreen = value;
@@ -79,7 +92,8 @@ export class UsersListComponent implements OnInit, OnDestroy {
             sort_order: 'ASC',
             keyword: this.keyword,
             page: page,
-            size: 20
+            size: 20,
+            ...(this.user.role === 'vendor' && { role: 'consumer' })
         }
         this._userService.getCalls(params).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             this.dataSource = res["data"];
@@ -140,8 +154,10 @@ export class UsersListComponent implements OnInit, OnDestroy {
             this.showToast('Please fill out the required fields', 'Required', 'error');
             return;
         }
+        const { vendorname, description, commission_rate, slug, is_active } = this.vendorForm.getRawValue();
+        let vendor = { name: vendorname, description, commission_rate, slug, is_active };
         this.isAddLoader = true;
-        let payload = { name, email, password, username, role, user };
+        let payload = { name, email, password, username, role, user, vendor };
         this._userService.postCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             if (res["message"]) {
                 this.getUsersList(1, res["message"], 'add');
@@ -152,7 +168,7 @@ export class UsersListComponent implements OnInit, OnDestroy {
 
         }, err => {
             console.log(err)
-            this.isAddLoader = false;
+            this.isAddLoader = false; 42
             this._changeDetectorRef.markForCheck();
             this.showToast(err.error["message"], err.error["code"], 'error');
         })

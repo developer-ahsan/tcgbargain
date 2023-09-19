@@ -56,4 +56,9 @@ export class UsersService {
         return this._httpClient.delete(
             environment.userUrl, { body: payload });
     };
+    getOrderCalls(params): Observable<any[]> {
+        return this._httpClient.get<any[]>(environment.orderUrl, {
+            params: params
+        }).pipe(retry(3));
+    };
 }

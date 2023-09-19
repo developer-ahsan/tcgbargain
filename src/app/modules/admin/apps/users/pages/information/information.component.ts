@@ -24,6 +24,7 @@ export class UserInfoListComponent implements OnInit, OnDestroy {
     // List
     private _unsubscribeAll: Subject<any> = new Subject<any>();
     userForm: FormGroup;
+    vendorForm: FormGroup;
     isEditLoader: boolean = false;
     slectedUser: any;
     constructor(
@@ -49,15 +50,34 @@ export class UserInfoListComponent implements OnInit, OnDestroy {
             id: new FormControl('', Validators.required),
             name: new FormControl('', Validators.required),
             email: new FormControl('', Validators.required),
-            password: new FormControl(null, Validators.required),
+            // password: new FormControl(null, Validators.required),
             username: new FormControl('', Validators.required),
             role: new FormControl('', Validators.required)
+        });
+        this.vendorForm = new FormGroup({
+            vendorid: new FormControl(null),
+            vendorname: new FormControl('', Validators.required),
+            description: new FormControl('', Validators.required),
+            commission_rate: new FormControl('', Validators.required),
+            slug: new FormControl('', Validators.required),
+            is_active: new FormControl(true),
         });
     }
     getSelectedUser() {
         this._userService.User$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             this.slectedUser = res["data"][0];
             this.userForm.patchValue(this.slectedUser);
+            if (this.slectedUser.vendor.id) {
+                const { id, description, name, commision_rate, slug } = this.slectedUser.vendor;
+                this.vendorForm.patchValue({
+                    vendorid: id,
+                    vendorname: name,
+                    description: description,
+                    commission_rate: commision_rate,
+                    slug: slug,
+                    is_active: true
+                });
+            }
         });
     }
     showToast(msg, title, type) {
@@ -68,13 +88,15 @@ export class UserInfoListComponent implements OnInit, OnDestroy {
         }
     }
     updateUser() {
-        const { id, name, email, password, username, role } = this.userForm.getRawValue();
+        const { id, name, email, username, role } = this.userForm.getRawValue();
         if (name == '' || email == '' || username == '') {
             this.showToast('Please fill out the required fields', 'Required', 'error');
             return;
         }
+        const { vendorid, vendorname, description, commission_rate, slug, is_active } = this.vendorForm.getRawValue();
+        let vendor = { id: vendorid, name: vendorname, description, commission_rate, slug, is_active };
         this.isEditLoader = true;
-        let payload = { id, name, email, password, username, role, user: true };
+        let payload = { id, name, email, username, role, user: true, vendor };
         this._userService.putCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             if (res["message"]) {
                 this.showToast(res["message"], 'Updated', 'success');

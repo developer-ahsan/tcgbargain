@@ -1,0 +1,93 @@
+<div class="flex-auto w-full p-5">
+    <div class="bg-card rounded-2xl p-5">
+        <div *ngIf="isLoading">
+            <ngx-skeleton-loader count="8" appearance="line" animation="pulse" [theme]="{ 
+                'background-color': '#dedede'
+              }">
+            </ngx-skeleton-loader>
+        </div>
+        <div class="row" *ngIf="!isLoading && isSubCatView" [formGroup]="categoryForm">
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Name*</mat-label>
+                    <input matInput placeholder="Enter Category Name" formControlName="name">
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Slug*</mat-label>
+                    <input matInput placeholder="Enter Slug" formControlName="slug">
+                </mat-form-field>
+            </div>
+            <div class="text-right col-12">
+                <button class="min-w-50" mat-stroked-button [matTooltip]="'Add New Sub Category'"
+                    (click)="addNewCategory()">
+                    <mat-icon svgIcon="heroicons_solid:plus" *ngIf="!isAddLoader"></mat-icon>
+                    <span class="ml-2" *ngIf="!isAddLoader"> Add New Sub Category </span>
+                    <mat-progress-spinner *ngIf="isAddLoader" [diameter]="24"
+                        [mode]="'indeterminate'"></mat-progress-spinner>
+                </button>
+            </div>
+            <div class="col-12 my-5"></div>
+            <div class="col-12 col-md-4 " *ngFor="let item of subCatsData">
+                <div class="flex bg-card border p-3 justify-between rounded-2xl align-items-center">
+                    <p class="cursor-pointer text-indigo-600 hover:text-blue-600"
+                        (click)="getSubCategoriesProds(item.id)">{{item.name}}</p>
+                    <mat-icon svgIcon="heroicons_outline:trash" *ngIf="!item?.delLoader" (click)="deleteProduct(item)"
+                        matTooltip="Delete Category"></mat-icon>
+                    <mat-progress-spinner *ngIf="item?.delLoader" [diameter]="24" [mode]="'indeterminate'"
+                        class="ml-2"></mat-progress-spinner>
+                </div>
+            </div>
+            <div class="col-12 flex justify-center" *ngIf="totalcats > subCatsData.length">
+                <p class="cursor-pointer" *ngIf="!isLoadMore" (click)="getNextSubCats()">Load More</p>
+                <mat-progress-spinner *ngIf="isLoadMore" [diameter]="24" [mode]="'indeterminate'"
+                    class="ml-2"></mat-progress-spinner>
+            </div>
+        </div>
+        <!-- Add New Products -->
+        <div *ngIf="!isSubCatView">
+            <div *ngIf="isProductLoader">
+                <ngx-skeleton-loader count="8" appearance="line" animation="pulse" [theme]="{ 
+                    'background-color': '#dedede'
+                  }">
+                </ngx-skeleton-loader>
+            </div>
+            <div *ngIf="!isProductLoader">
+                <div class="row">
+                    <div class="col-12 text-right">
+                        <button mat-button mat-flat-button color="primary" (click)="backToList()">Back to
+                            SubCategories</button>
+                    </div>
+                    <div class="col-12" *ngIf="subCatProducts.length == 0">
+                        <div class="font-semibold  text-center alert alert-danger">
+                            No Products found.
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-3 my-2" *ngFor="let item of subCatProducts">
+                        <div class="bg-card rounded-2xl bg-gray-200 p-2 text-center">
+                            <div class="w-full" style="text-align: -webkit-center;">
+                                <img *ngIf="!item.image_url.includes('http')" class="w-10"
+                                    src="{{imgUrl + item.image_url}}"
+                                    onError="this.src='assets/images/coming_soon.jpg'">
+                                <img *ngIf="item.image_url.includes('http')" class="w-10" src="{{item.image_url}}"
+                                    onError="this.src='assets/images/coming_soon.jpg'">
+                            </div>
+                            <p class="cursor-pointer text-indigo-600 hover:text-blue-600">{{item.name}}</p>
+                            <mat-checkbox [(ngModel)]="item.checked"></mat-checkbox>
+                        </div>
+                    </div>
+                    <div class="col-12 text-right" *ngIf="subCatProducts.length > 0">
+                        <button mat-button mat-stroked-button class="min-w-40" (click)="addNewProducts()"
+                            [disabled]="isAddProducts">
+                            <mat-icon svgIcon="heroicons_solid:plus" *ngIf="!isAddProducts"></mat-icon>
+                            <span class="ml-2" *ngIf="!isAddProducts"> Add Selected Product </span>
+                            <mat-progress-spinner *ngIf="isAddProducts" [diameter]="24"
+                                [mode]="'indeterminate'"></mat-progress-spinner>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

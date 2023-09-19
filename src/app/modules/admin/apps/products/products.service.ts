@@ -14,6 +14,7 @@ export class ProductsService {
      * Constructor
      */
     private _single_product: BehaviorSubject<any[] | null> = new BehaviorSubject<any[]>(null);
+    private _allVendors: BehaviorSubject<any[] | null> = new BehaviorSubject<any[]>(null);
 
     constructor(private _httpClient: HttpClient,
         private _authService: AuthService,
@@ -25,6 +26,9 @@ export class ProductsService {
     // -----------------------------------------------------------------------------------------------------
     get Product$(): Observable<any[]> {
         return this._single_product.asObservable();
+    };
+    get Vendors$(): Observable<any[]> {
+        return this._allVendors.asObservable();
     };
     // =
     getProductById(id): Observable<any[]> {
@@ -38,6 +42,16 @@ export class ProductsService {
                 this._single_product.next(response);
             })
         );
+    };
+    getCallsStore(params): Observable<any[]> {
+        return this._httpClient.get<any[]>(environment.storeUrl, {
+            params: params
+        }).pipe(retry(3));
+    };
+    getCallsBestBuy(params): Observable<any[]> {
+        return this._httpClient.get<any[]>(environment.bestBuyProducts, {
+            params: params
+        }).pipe(retry(3));
     };
     getCalls(params): Observable<any[]> {
         return this._httpClient.get<any[]>(environment.productUrl, {
@@ -55,5 +69,17 @@ export class ProductsService {
     deleteCalls(payload) {
         return this._httpClient.delete(
             environment.productUrl, { body: payload });
+    };
+    getAllVendors(): Observable<any[]> {
+        return this._httpClient.get<any[]>(environment.vendorUrl, {
+            params: {
+                list: true,
+                drop_down: true
+            }
+        }).pipe(
+            tap((response: any) => {
+                this._allVendors.next(response);
+            })
+        );
     };
 }

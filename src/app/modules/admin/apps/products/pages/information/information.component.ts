@@ -11,6 +11,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { ToastrService } from 'ngx-toastr';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { ProductsService } from '../../products.service';
+import { AuthService } from 'app/core/auth/auth.service';
 
 @Component({
     selector: 'product-information-list',
@@ -26,8 +27,11 @@ export class ProductInfoListComponent implements OnInit, OnDestroy {
     productForm: FormGroup;
     isEditLoader: boolean = false;
     slectedStore: any;
+    allVendors = [];
+    user: any;
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
+        private _authService: AuthService,
         private _toastr: ToastrService,
         private _productService: ProductsService,
     ) {
@@ -41,8 +45,17 @@ export class ProductInfoListComponent implements OnInit, OnDestroy {
      * On init
      */
     ngOnInit(): void {
+        this._authService.user$.subscribe(res => {
+            this.user = res["data"][0];
+        })
         this.initForm();
+        this.getAllVendors();
         this.getSelectedStore();
+    }
+    getAllVendors() {
+        this._productService.Vendors$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+            this.allVendors = res["data"];
+        });
     }
     initForm() {
         this.productForm = new FormGroup({
@@ -53,6 +66,8 @@ export class ProductInfoListComponent implements OnInit, OnDestroy {
             product_number: new FormControl('', Validators.required),
             source: new FormControl('', Validators.required),
             url: new FormControl('', Validators.required),
+            product_type: new FormControl('', Validators.required),
+            affiliate_url: new FormControl(''),
             vendor_id: new FormControl('', Validators.required),
             image_url: new FormControl('', Validators.required),
             slug: new FormControl('', Validators.required),
@@ -64,6 +79,7 @@ export class ProductInfoListComponent implements OnInit, OnDestroy {
         this._productService.Product$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             this.slectedStore = res["data"][0];
             this.productForm.patchValue(this.slectedStore);
+            this.productForm.patchValue({ vendor_id: String(this.slectedStore.vendor_id) });
         });
     }
     showToast(msg, title, type) {
@@ -74,14 +90,14 @@ export class ProductInfoListComponent implements OnInit, OnDestroy {
         }
     }
     updateProduct() {
-        const { id, name, url, description, price, slug, is_active, product_number, product, image_url, vendor_id, source } = this.productForm.getRawValue();
+        const { id, name, url, description, price, slug, is_active, product_number, product, image_url, vendor_id, source, product_type, affiliate_url } = this.productForm.getRawValue();
 
         if (name == '' || price == '' || product_number == '') {
             this.showToast('Please fill out the required fields', 'Required', 'error');
             return;
         }
         this.isEditLoader = true;
-        let payload = { id, name, url, description, price, slug, is_active, product_number, product, image_url, vendor_id, source };
+        let payload = { id, name, url, description, price, slug, is_active, product_number, product, image_url, product_type, affiliate_url, vendor_id: Number(vendor_id), source };
         this._productService.putCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             if (res["message"]) {
                 this.showToast(res["message"], 'Updated', 'success');

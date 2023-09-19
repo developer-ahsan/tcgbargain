@@ -51,6 +51,7 @@ export class StoreInfoListComponent implements OnInit, OnDestroy {
             description: new FormControl('', Validators.required),
             url: new FormControl('', Validators.required),
             primary_color: new FormControl('#00000', Validators.required),
+            vendor_id: new FormControl(null),
             secondary_color: new FormControl('#FFFFF', Validators.required),
             is_active: new FormControl(true),
             store: new FormControl(true),
@@ -70,13 +71,13 @@ export class StoreInfoListComponent implements OnInit, OnDestroy {
         }
     }
     updateStore() {
-        const { id, title, url, description, primary_color, secondary_color, is_active, store } = this.storeForm.getRawValue();
+        const { id, title, url, description, primary_color, secondary_color, is_active, store, vendor_id } = this.storeForm.getRawValue();
         if (title == '' || url == '' || description == '') {
             this.showToast('Please fill out the required fields', 'Required', 'error');
             return;
         }
         this.isEditLoader = true;
-        let payload = { id: Number(id), title, url, description, primary_color, secondary_color, is_active, store };
+        let payload = { id: Number(id), title, url, description, primary_color, secondary_color, is_active, store, vendor_id };
         this._storeService.putCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             if (res["message"]) {
                 this.showToast(res["message"], 'Updated', 'success');

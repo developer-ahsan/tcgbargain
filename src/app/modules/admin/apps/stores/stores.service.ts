@@ -39,6 +39,11 @@ export class StoresService {
             })
         );
     };
+    getStoreProductCalls(params): Observable<any[]> {
+        return this._httpClient.get<any[]>(environment.storeProductUrl, {
+            params: params
+        }).pipe(retry(3));
+    };
     getCalls(params): Observable<any[]> {
         return this._httpClient.get<any[]>(environment.storeUrl, {
             params: params

@@ -7,6 +7,7 @@ import { NotificationsService } from 'app/layout/common/notifications/notificati
 import { QuickChatService } from 'app/layout/common/quick-chat/quick-chat.service';
 import { ShortcutsService } from 'app/layout/common/shortcuts/shortcuts.service';
 import { UserService } from 'app/core/user/user.service';
+import { AuthService } from './core/auth/auth.service';
 
 @Injectable({
     providedIn: 'root'
@@ -23,8 +24,7 @@ export class InitialDataResolver implements Resolve<any>
         private _quickChatService: QuickChatService,
         private _shortcutsService: ShortcutsService,
         private _userService: UserService
-    )
-    {
+    ) {
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -37,8 +37,7 @@ export class InitialDataResolver implements Resolve<any>
      * @param route
      * @param state
      */
-    resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<any>
-    {
+    resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<any> {
         // Fork join multiple API endpoint calls to wait all of them to finish
         return forkJoin([
             this._navigationService.get(),
@@ -48,5 +47,34 @@ export class InitialDataResolver implements Resolve<any>
             this._shortcutsService.getAll(),
             this._userService.get()
         ]);
+    }
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class UserInfoResolver implements Resolve<any>
+{
+    /**
+     * Constructor
+     */
+    constructor(
+        private _authService: AuthService,
+    ) {
+    }
+
+    // -----------------------------------------------------------------------------------------------------
+    // @ Public methods
+    // -----------------------------------------------------------------------------------------------------
+
+    /**
+     * Use this resolver to resolve initial mock-api for the application
+     *
+     * @param route
+     * @param state
+     */
+    resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<any> {
+        // Fork join multiple API endpoint calls to wait all of them to finish
+        return this._authService.getUserInfo();
     }
 }
