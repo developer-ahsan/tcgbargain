@@ -122,8 +122,8 @@ export class StoreProducstListComponent implements OnInit, OnDestroy {
         if (image) {
             image_url = image.src;
         }
-        let payload = { name: title, url, description: body_html, price: Number(products.variants[0].price), slug: handle, is_active: true, product_number: id, product, image_url: image_url, vendor_id, source: 'shopify', product_type: 'normal', affiliate_url: '' };
-        this._productService.postCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+        let payload = { name: title, url, description: body_html, price: Number(products.variants[0].price), slug: handle, is_active: true, product_number: id, image_url: image_url, vendor_id, source: 'shopify', product_type: 'normal', affiliate_url: '', product: true };
+        this._productService.postProductCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             this.showToast(res["message"], 'Product Created', 'success');
             products.importLoader = false;
             this.ngSelectedCats = null;

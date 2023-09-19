@@ -70,6 +70,10 @@ export class ProductsService {
         return this._httpClient.delete(
             environment.shopifyURL, { body: payload });
     };
+    postProductCalls(payload) {
+        return this._httpClient.post(
+            environment.productUrl, payload);
+    };
     getAllVendors(): Observable<any[]> {
         return this._httpClient.get<any[]>(environment.categoryUrl, {
             params: {
