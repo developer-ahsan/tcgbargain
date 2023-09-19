@@ -138,7 +138,7 @@
                             <mat-paginator #paginator
                                 class="border-b sm:border-t sm:border-b-0 z-10 bg-gray-50 dark:bg-transparent"
                                 [ngClass]="{'pointer-events-none': isLoading}" [length]="totalUsers" [pageIndex]="0"
-                                [pageSize]="20" (page)="getNextData($event)" [hidePageSize]="true">
+                                [pageSize]="50" (page)="getNextData($event)" [hidePageSize]="true">
                             </mat-paginator>
                         </div>
                         <!-- No Users Found -->

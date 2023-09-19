@@ -40,7 +40,7 @@ export class ShopifyListComponent implements OnInit, OnDestroy {
     isAddLoader: boolean = false;
     selectedFile: any;
     imgUrl = environment.imgagePathProds;
-    allVendors = [];
+    AllCategories = [];
     isSearchLoader: boolean = false;
     bestBuyProducts: any;
     bestBuyPage = 1;
@@ -79,13 +79,13 @@ export class ShopifyListComponent implements OnInit, OnDestroy {
         })
         this.isLoading = true;
         this.initForm();
-        this.getAllVendors();
+        this.getAllCategories();
         this.getProductsList(1, '', 'get');
         this.getBestBuyCategory();
     }
-    getAllVendors() {
-        this._productService.Vendors$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
-            this.allVendors = res["data"];
+    getAllCategories() {
+        this._productService.Categories$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+            this.AllCategories = res["data"];
         });
     }
     initForm() {
@@ -98,7 +98,6 @@ export class ShopifyListComponent implements OnInit, OnDestroy {
             access_token: new FormControl('', Validators.required),
             user_id: new FormControl('', Validators.required)
         });
-        console.log(this.user);
         this.productForm.patchValue({ user_id: this.user.id });
     }
     calledScreen(value) {

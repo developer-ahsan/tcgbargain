@@ -86,8 +86,7 @@ export class ShopifysDetailsComponents implements OnInit, AfterViewInit, OnDestr
     }
     getSelectedProduct() {
         this._productService.Product$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
-            console.log(res)
-            this.selectedProduct = res["data"][0];
+            this.selectedProduct = res["data"][0].details[0];
             this.routesInitialize();
         });
     }
@@ -95,36 +94,22 @@ export class ShopifysDetailsComponents implements OnInit, AfterViewInit, OnDestr
         this.menuData = [
             {
                 id: 'store',
-                title: 'Product Details',
+                title: 'Store Details',
                 type: 'group',
                 children: [
                     {
                         id: 'store.address',
-                        title: 'Product Information',
+                        title: 'Store Information',
                         icon: 'mat_outline:info',
                         type: 'basic',
-                        link: `/apps/products/${this.selectedProduct.id}/information`
+                        link: `/apps/shopify/${this.selectedProduct.id}/information`
                     },
                     {
                         id: 'store.address',
-                        title: 'Store Versions',
+                        title: 'Store Products',
                         icon: 'mat_outline:category',
                         type: 'basic',
-                        link: `/apps/products/${this.selectedProduct.id}/stores-products`
-                    },
-                    {
-                        id: 'store.address',
-                        title: 'Product Variants',
-                        icon: 'mat_outline:festival',
-                        type: 'basic',
-                        link: `/apps/products/${this.selectedProduct.id}/product-variants`
-                    },
-                    {
-                        id: 'store.address',
-                        title: 'Product Packages',
-                        icon: 'mat_outline:backpack',
-                        type: 'basic',
-                        link: `/apps/products/${this.selectedProduct.id}/product-packages`
+                        link: `/apps/shopify/${this.selectedProduct.id}/store-products`
                     }
                 ]
             }

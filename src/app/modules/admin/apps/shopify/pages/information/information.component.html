@@ -3,90 +3,46 @@
         <div class="row" [formGroup]="productForm">
             <div class="col-12 col-md-6">
                 <mat-form-field class="w-full" appearance="fill">
-                    <mat-label>Name*</mat-label>
-                    <input matInput placeholder="Enter Product Name" formControlName="name">
+                    <mat-label>Platform Name*</mat-label>
+                    <input matInput placeholder="Enter Platform Name" formControlName="platform">
                 </mat-form-field>
             </div>
             <div class="col-12 col-md-6">
                 <mat-form-field class="w-full" appearance="fill">
-                    <mat-label>Product Number*</mat-label>
-                    <input matInput placeholder="Enter Product Number" formControlName="product_number">
+                    <mat-label>Store Title*</mat-label>
+                    <input matInput placeholder="Store Title" formControlName="title">
                 </mat-form-field>
             </div>
             <div class="col-12 col-md-6">
                 <mat-form-field class="w-full" appearance="fill">
-                    <mat-label>Price*</mat-label>
-                    <input matInput type="number" placeholder="Enter Price" formControlName="price">
+                    <mat-label>Domain*</mat-label>
+                    <input matInput type="text" placeholder="Domain" formControlName="domain">
                 </mat-form-field>
             </div>
             <div class="col-12 col-md-6">
                 <mat-form-field class="w-full" appearance="fill">
-                    <mat-label>URL*</mat-label>
-                    <input matInput placeholder="Enter Product URL" formControlName="url">
+                    <mat-label>Api Key*</mat-label>
+                    <input matInput placeholder="Api Key" formControlName="api_key">
                 </mat-form-field>
             </div>
 
-            <div class="col-12">
+            <div class="col-12 col-md-6">
                 <mat-form-field class="w-full" appearance="fill">
-                    <mat-label>Description*</mat-label>
-                    <textarea matInput name="" id="" cols="30" rows="10" formControlName="description"
-                        placeholder="Enter Product Description"></textarea>
+                    <mat-label>Api Secret*</mat-label>
+                    <input matInput formControlName="api_secret" placeholder="Api Secret">
                 </mat-form-field>
             </div>
             <div class="col-12 col-md-6">
                 <mat-form-field class="w-full" appearance="fill">
-                    <mat-label>Image*</mat-label>
-                    <input matInput readonly placeholder="Enter Image URL" formControlName="image_url">
-                </mat-form-field>
-            </div>
-            <div class="col-12 col-md-6">
-                <mat-form-field class="w-full" appearance="fill">
-                    <mat-label>Source*</mat-label>
-                    <input matInput placeholder="Enter Product Source" formControlName="source">
-                </mat-form-field>
-            </div>
-            <div class="col-12 col-md-6">
-                <mat-form-field class="w-full" appearance="fill">
-                    <mat-label>Slug*</mat-label>
-                    <input matInput placeholder="Enter Slug" formControlName="slug">
-                </mat-form-field>
-            </div>
-            <div class="col-12 col-md-6">
-                <mat-form-field class="w-full" appearance="fill">
-                    <mat-label>Product Type*</mat-label>
-                    <mat-select formControlName="product_type">
-                        <mat-option [value]="'normal'">Normal</mat-option>
-                        <mat-option [value]="'affiliate'">Affiliate</mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
-            <div class="col-12 col-md-6" *ngIf="productForm.get('product_type').value == 'affiliate'">
-                <mat-form-field class="w-full" appearance="fill">
-                    <mat-label>Affiliate Url</mat-label>
-                    <input matInput placeholder="Enter Slug" formControlName="affiliate_url">
-                </mat-form-field>
-            </div>
-            <div class="col-12 col-md-6" *ngIf="user.role == 'admin'">
-                <mat-form-field class="w-full" appearance="fill">
-                    <mat-label>Vendor*</mat-label>
-                    <mat-select formControlName="vendor_id">
-                        <mat-option *ngFor="let item of allVendors" [value]="item.id">{{item.name}}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
-            <div class="col-12 col-md-6">
-                <mat-form-field class="w-full" appearance="fill">
-                    <mat-label>Active*</mat-label>
-                    <mat-select formControlName="is_active">
-                        <mat-option [value]="true">Active</mat-option>
-                        <mat-option [value]="false">Disabled</mat-option>
-                    </mat-select>
+                    <mat-label>Access Token*</mat-label>
+                    <input matInput placeholder="Access Token" formControlName="access_token">
                 </mat-form-field>
             </div>
             <div class="text-right col-12">
-                <button class="min-w-50" mat-stroked-button [matTooltip]="'Update Products'" (click)="updateProduct()">
+                <button class="min-w-50" mat-stroked-button [matTooltip]="'Update Store'" (click)="updateProduct()"
+                    [disabled]="isEditLoader || !productForm.valid">
                     <mat-icon svgIcon="heroicons_solid:plus" *ngIf="!isEditLoader"></mat-icon>
-                    <span class="ml-2" *ngIf="!isEditLoader"> Update Product </span>
+                    <span class="ml-2" *ngIf="!isEditLoader"> Update Store </span>
                     <mat-progress-spinner *ngIf="isEditLoader" [diameter]="24"
                         [mode]="'indeterminate'"></mat-progress-spinner>
                 </button>

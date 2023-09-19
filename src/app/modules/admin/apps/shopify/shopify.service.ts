@@ -27,7 +27,7 @@ export class ProductsService {
     get Product$(): Observable<any[]> {
         return this._single_product.asObservable();
     };
-    get Vendors$(): Observable<any[]> {
+    get Categories$(): Observable<any[]> {
         return this._allVendors.asObservable();
     };
     // =
@@ -71,7 +71,7 @@ export class ProductsService {
             environment.shopifyURL, { body: payload });
     };
     getAllVendors(): Observable<any[]> {
-        return this._httpClient.get<any[]>(environment.vendorUrl, {
+        return this._httpClient.get<any[]>(environment.categoryUrl, {
             params: {
                 list: true,
                 drop_down: true

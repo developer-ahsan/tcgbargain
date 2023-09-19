@@ -49,37 +49,25 @@ export class ShopifyInfoListComponent implements OnInit, OnDestroy {
             this.user = res["data"][0];
         })
         this.initForm();
-        this.getAllVendors();
         this.getSelectedStore();
-    }
-    getAllVendors() {
-        this._productService.Vendors$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
-            this.allVendors = res["data"];
-        });
     }
     initForm() {
         this.productForm = new FormGroup({
             id: new FormControl('', Validators.required),
-            name: new FormControl('', Validators.required),
-            description: new FormControl('', Validators.required),
-            price: new FormControl('', Validators.required),
-            product_number: new FormControl('', Validators.required),
-            source: new FormControl('', Validators.required),
-            url: new FormControl('', Validators.required),
-            product_type: new FormControl('', Validators.required),
-            affiliate_url: new FormControl(''),
-            vendor_id: new FormControl('', Validators.required),
-            image_url: new FormControl('', Validators.required),
-            slug: new FormControl('', Validators.required),
-            is_active: new FormControl(true),
-            product: new FormControl(true),
+            platform: new FormControl('', Validators.required),
+            title: new FormControl('', Validators.required),
+            api_key: new FormControl('', Validators.required),
+            api_secret: new FormControl('', Validators.required),
+            domain: new FormControl('', Validators.required),
+            access_token: new FormControl('', Validators.required),
+            user_id: new FormControl('', Validators.required)
         });
+        this.productForm.patchValue({ user_id: this.user.id });
     }
     getSelectedStore() {
         this._productService.Product$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
-            this.slectedStore = res["data"][0];
+            this.slectedStore = res["data"][0].details[0];
             this.productForm.patchValue(this.slectedStore);
-            this.productForm.patchValue({ vendor_id: String(this.slectedStore.vendor_id) });
         });
     }
     showToast(msg, title, type) {
@@ -90,14 +78,9 @@ export class ShopifyInfoListComponent implements OnInit, OnDestroy {
         }
     }
     updateProduct() {
-        const { id, name, url, description, price, slug, is_active, product_number, product, image_url, vendor_id, source, product_type, affiliate_url } = this.productForm.getRawValue();
-
-        if (name == '' || price == '' || product_number == '') {
-            this.showToast('Please fill out the required fields', 'Required', 'error');
-            return;
-        }
+        const { id, platform, title, api_key, api_secret, access_token, domain, user_id } = this.productForm.getRawValue();
         this.isEditLoader = true;
-        let payload = { id, name, url, description, price, slug, is_active, product_number, product, image_url, product_type, affiliate_url, vendor_id: Number(vendor_id), source };
+        let payload = { id, platform, title, api_key, api_secret, access_token, domain, user_id };
         this._productService.putCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             if (res["message"]) {
                 this.showToast(res["message"], 'Updated', 'success');

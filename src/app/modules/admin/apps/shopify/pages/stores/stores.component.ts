@@ -20,7 +20,7 @@ import { AuthService } from 'app/core/auth/auth.service';
     changeDetection: ChangeDetectionStrategy.OnPush,
     styles: [".mat-paginator {border-radius: 16px !important}"]
 })
-export class UsersStoresListComponent implements OnInit, OnDestroy {
+export class StoreProducstListComponent implements OnInit, OnDestroy {
     @ViewChild('paginator') paginator: MatPaginator;
     // List
     private _unsubscribeAll: Subject<any> = new Subject<any>();
@@ -52,6 +52,8 @@ export class UsersStoresListComponent implements OnInit, OnDestroy {
     totalNotStoreProd = 0;
     prodNotLoadMore: boolean = false;
     user: any;
+    AllCategories = [];
+    ngSelectedCats: any;
     constructor(
         private _activatedRoute: ActivatedRoute,
         private _changeDetectorRef: ChangeDetectorRef,
@@ -76,40 +78,30 @@ export class UsersStoresListComponent implements OnInit, OnDestroy {
             this.user = res["data"][0];
         })
         this.isLoading = true;
-        this.getSelectedProduct();
+        this.getAllCategories();
+        this.getSelectedStore();
     }
-    calledScreen(value) {
-        this.mainScreen = value;
-        if (value == 'Add New Store Product') {
-            if (this.storeNotProducts.length == 0) {
-                this.isNotStoreLoader = true;
-                this.getNotProductsStore(1);
-            }
-        }
+    getAllCategories() {
+        this._productService.Categories$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+            this.AllCategories = res["data"];
+        });
     }
-    getSelectedProduct() {
+    getSelectedStore() {
         this._productService.Product$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
-            this.selectedProduct = res["data"][0];
-            this.getProductsStore(1, '', 'get');
+            this.selectedProduct = res["data"][0].details[0];
+            this.getProductsStore();
         });
     }
-    getProductsStore(page, msg, type) {
+    getProductsStore() {
         let params = {
-            page: page,
-            is_product_id: this.selectedProduct.id,
-            list: true,
-            ...(this.user.role === 'vendor' && { vendor_id: this.user.vendor.id })
+            fetch_product: true,
+            access_token: this.selectedProduct.access_token,
+            api_key: this.selectedProduct.api_key,
+            domain: this.selectedProduct.domain
         }
-        this._productService.getCallsStore(params).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
-            this.storeProducts = res["data"];
+        this._productService.getCalls(params).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+            this.storeProducts = res["products"];
             this.totalStoreProd = res["totalRecords"];
-            if (type == 'add') {
-                this.storeNotProducts = [];
-                this.isAddLoader = false;
-                this.mainScreen = 'Store Products';
-                this.showToast(msg, 'Add Store Product', 'success');
-                this._changeDetectorRef.markForCheck();
-            }
             this.isLoading = false;
             this._changeDetectorRef.markForCheck();
         }, err => {
@@ -117,43 +109,33 @@ export class UsersStoresListComponent implements OnInit, OnDestroy {
             this._changeDetectorRef.markForCheck();
         });
     }
-    getNextData(event) {
-        const { previousPageIndex, pageIndex } = event;
 
-        if (pageIndex > previousPageIndex) {
-            this.page++;
-        } else {
-            this.page--;
-        };
-        this.getProductsStore(this.page, '', 'get');
-    };
-    getNextStoreProds() {
-        this.prodNotPage++;
-        this.prodNotLoadMore = true;
-        this.getNotProductsStore(this.prodNotPage);
-    }
-    getNotProductsStore(page) {
-        if (page == 1) {
-            this.storeNotProducts = [];
+    addNewShopifyProduct(products: any) {
+        if (!this.ngSelectedCats) {
+            this.showToast('Please select atleat one categories', 'Select Category', 'error');
+            return;
+
         }
-        let params = {
-            page: page,
-            not_product_id: this.selectedProduct.id,
-            list: true,
-            ...(this.user.role === 'vendor' && { vendor_id: this.user.vendor.id })
+        products.importLoader = true;
+        const { title, url, body_html, price, handle, is_active, id, product, image, vendor_id, source, product_type, affiliate_url } = products
+        let image_url = '';
+        if (image) {
+            image_url = image.src;
         }
-        this._productService.getCallsStore(params).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
-            this.storeNotProducts = this.storeNotProducts.concat(res["data"]);
-            this.totalNotStoreProd = res["totalRecords"]
-            this.prodNotLoadMore = false;
-            this.isNotStoreLoader = false;
+        let payload = { name: title, url, description: body_html, price: Number(products.variants[0].price), slug: handle, is_active: true, product_number: id, product, image_url: image_url, vendor_id, source: 'shopify', product_type: 'normal', affiliate_url: '' };
+        this._productService.postCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+            this.showToast(res["message"], 'Product Created', 'success');
+            products.importLoader = false;
+            this.ngSelectedCats = null;
             this._changeDetectorRef.markForCheck();
+
         }, err => {
-            this.prodNotLoadMore = false;
-            this.isNotStoreLoader = false;
+            this.isAddLoader = false;
             this._changeDetectorRef.markForCheck();
+            this.showToast(err.error["message"], err.error["code"], 'error');
         });
     }
+
     addNewProduct() {
         let prods = [];
         this.storeNotProducts.forEach(element => {
@@ -173,7 +155,7 @@ export class UsersStoresListComponent implements OnInit, OnDestroy {
         }
         this._productService.postCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             if (res["message"]) {
-                this.getProductsStore(1, res["message"], 'add');
+                // this.getProductsStore(1, res["message"], 'add');
             } else {
                 this.isAddLoader = false;
                 this._changeDetectorRef.markForCheck();

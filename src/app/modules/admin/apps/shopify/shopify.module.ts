@@ -40,16 +40,16 @@ import { ShopifyComponent } from './shopify.component';
 import { ShopifyListComponent } from './list/shopify-list.component';
 import { ShopifysDetailsComponents } from './details/details.component';
 import { ShopifyInfoListComponent } from './pages/information/information.component';
-import { UsersStoresListComponent } from './pages/stores/stores.component';
-import { ProductVariantsComponent } from './pages/product-variants/product-variants.component';
-import { ProductPackagesComponent } from './pages/product-packages/product-packages.component';
+import { StoreProducstListComponent } from './pages/stores/stores.component';
+import { DataTablesModule } from 'angular-datatables';
 
 @NgModule({
     declarations: [
         ShopifyComponent,
         ShopifyListComponent,
         ShopifyInfoListComponent,
-        ShopifysDetailsComponents
+        ShopifysDetailsComponents,
+        StoreProducstListComponent
     ],
     imports: [
         RouterModule.forChild(storeRoutes),
@@ -87,6 +87,7 @@ import { ProductPackagesComponent } from './pages/product-packages/product-packa
         FuseMasonryModule,
         FuseNavigationModule,
         FuseScrollResetModule,
+        DataTablesModule
     ],
     providers: [
         ToastrService,
