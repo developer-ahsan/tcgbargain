@@ -76,9 +76,8 @@ export class UsersListComponent implements OnInit, OnDestroy {
         });
         this.vendorForm = new FormGroup({
             vendorname: new FormControl('', Validators.required),
-            description: new FormControl('', Validators.required),
+            description: new FormControl(''),
             commission_rate: new FormControl('', Validators.required),
-            slug: new FormControl('', Validators.required),
             is_active: new FormControl(true),
         });
     }
@@ -88,8 +87,8 @@ export class UsersListComponent implements OnInit, OnDestroy {
     getUsersList(page, msg, type) {
         let params = {
             list: true,
-            sort_by: 'email',
-            sort_order: 'ASC',
+            sort_by: 'created_at',
+            sort_order: 'DESC',
             keyword: this.keyword,
             page: page,
             size: 20,
@@ -154,8 +153,8 @@ export class UsersListComponent implements OnInit, OnDestroy {
             this.showToast('Please fill out the required fields', 'Required', 'error');
             return;
         }
-        const { vendorname, description, commission_rate, slug, is_active } = this.vendorForm.getRawValue();
-        let vendor = { name: vendorname, description, commission_rate, slug, is_active };
+        const { vendorname, description, commission_rate, is_active } = this.vendorForm.getRawValue();
+        let vendor = { name: vendorname, description, commission_rate, is_active, email_link: 'https://tcgbargain.web.app/emailVerification/' + email };
         this.isAddLoader = true;
         let payload = { name, email, password, username, role, user, vendor };
         this._userService.postCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
@@ -168,7 +167,7 @@ export class UsersListComponent implements OnInit, OnDestroy {
 
         }, err => {
             console.log(err)
-            this.isAddLoader = false; 42
+            this.isAddLoader = false;
             this._changeDetectorRef.markForCheck();
             this.showToast(err.error["message"], err.error["code"], 'error');
         })

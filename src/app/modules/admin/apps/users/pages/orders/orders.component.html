@@ -1,11 +1,11 @@
-<div class="flex-auto w-full p-5">
+<div class="flex-auto w-full">
     <div *ngIf="isLoading" class="p-5">
         <ngx-skeleton-loader count="8" appearance="line" animation="pulse" [theme]="{ 
             'background-color': '#dedede'
           }">
         </ngx-skeleton-loader>
     </div>
-    <div class="rounded-2xl shadow bg-card flex flex-col lg:flex-row w-full" *ngIf="!isLoading">
+    <div class="bg-card flex flex-col lg:flex-row w-full" *ngIf="!isLoading">
         <div *ngIf="dataSource.length > 0;else other_content" class="w-full">
             <table class="table table-striped">
                 <thead>
@@ -16,6 +16,7 @@
                         <th>Total</th>
                         <th>Payment Status</th>
                         <th>Date</th>
+                        <th>PDF</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -24,10 +25,16 @@
                         <td>
                             <p *ngFor="let prod of item.order_items">{{prod.product_name}}</p>
                         </td>
-                        <td>{{item.delivery_charges | currency}}</td>
+                        <td>{{(item.delivery_charges | currency) || 0}}</td>
                         <td>{{item.total_amount | currency}}</td>
                         <td>{{item.payment_status}}</td>
                         <td>{{item.created_at | date}}</td>
+                        <td>
+                            <a href="{{item.label}}" target="_blank">
+                                <mat-icon class="cursor-pointer" matTooltip="Download File"
+                                    svgIcon="mat_outline:file_download"></mat-icon>
+                            </a>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -38,7 +45,7 @@
         </div>
         <!-- No Store Found -->
         <ng-template #other_content>
-            <div class="p-5">
+            <div class="p-5 w-full">
                 <div class="font-semibold  text-center alert alert-danger">
                     No Orders found.
                 </div>

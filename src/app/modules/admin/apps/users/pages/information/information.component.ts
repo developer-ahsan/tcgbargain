@@ -11,6 +11,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { ToastrService } from 'ngx-toastr';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { UsersService } from '../../users.service';
+import { AuthService } from 'app/core/auth/auth.service';
 
 @Component({
     selector: 'store-information-list',
@@ -25,11 +26,15 @@ export class UserInfoListComponent implements OnInit, OnDestroy {
     private _unsubscribeAll: Subject<any> = new Subject<any>();
     userForm: FormGroup;
     vendorForm: FormGroup;
+    isPasswordLoader: boolean = false;
     isEditLoader: boolean = false;
     slectedUser: any;
+    new_password: any;
+    user: any;
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
         private _toastr: ToastrService,
+        private _authService: AuthService,
         private _userService: UsersService,
     ) {
     }
@@ -44,6 +49,9 @@ export class UserInfoListComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.initForm();
         this.getSelectedUser();
+        this._authService.user$.subscribe(res => {
+            this.user = res["data"][0];
+        })
     }
     initForm() {
         this.userForm = new FormGroup({
@@ -57,7 +65,7 @@ export class UserInfoListComponent implements OnInit, OnDestroy {
         this.vendorForm = new FormGroup({
             vendorid: new FormControl(null),
             vendorname: new FormControl('', Validators.required),
-            description: new FormControl('', Validators.required),
+            description: new FormControl(''),
             commission_rate: new FormControl('', Validators.required),
             slug: new FormControl('', Validators.required),
             is_active: new FormControl(true),
@@ -100,14 +108,39 @@ export class UserInfoListComponent implements OnInit, OnDestroy {
         this._userService.putCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             if (res["message"]) {
                 this.showToast(res["message"], 'Updated', 'success');
+                this._userService.getUserById(id).subscribe();
             }
             this.isEditLoader = false;
             this._changeDetectorRef.markForCheck();
 
         }, err => {
+            console.log(err)
             this.isEditLoader = false;
             this._changeDetectorRef.markForCheck();
-            this.showToast(err.error["message"], err.error["code"], 'error');
+            this.showToast(err.error["message"] || err.error["detail"], err.error["code"], 'error');
+        })
+    }
+    updatePassword() {
+        const { id, name, email, username, role } = this.userForm.getRawValue();
+        if (!this.new_password) {
+            this.showToast('Password is required', 'Required', 'error');
+            return;
+        }
+        this.isPasswordLoader = true;
+        let payload = { password: this.new_password, change_password: true, id };
+        this._userService.putCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+            if (res["message"]) {
+                this.showToast(res["message"], 'Updated', 'success');
+                this.new_password = '';
+            }
+            this.isPasswordLoader = false;
+            this._changeDetectorRef.markForCheck();
+
+        }, err => {
+            console.log(err)
+            this.isPasswordLoader = false;
+            this._changeDetectorRef.markForCheck();
+            this.showToast(err.error["message"] || err.error["detail"], err.error["code"], 'error');
         })
     }
     /**

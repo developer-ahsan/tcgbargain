@@ -104,7 +104,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
             image_url: new FormControl('', Validators.required),
             product_type: new FormControl('normal', Validators.required),
             affiliate_url: new FormControl(''),
-            slug: new FormControl('', Validators.required),
+            slug: new FormControl(''),
             is_active: new FormControl(true),
             product: new FormControl(true),
         });

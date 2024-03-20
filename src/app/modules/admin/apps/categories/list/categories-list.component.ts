@@ -66,7 +66,7 @@ export class CategoriesListComponent implements OnInit, OnDestroy {
         this.categoryForm = new FormGroup({
             name: new FormControl('', Validators.required),
             parent_category_id: new FormControl(null),
-            slug: new FormControl('', Validators.required),
+            slug: new FormControl(''),
             category: new FormControl(true),
         });
     }
@@ -137,7 +137,7 @@ export class CategoriesListComponent implements OnInit, OnDestroy {
     }
     addNewCategory() {
         const { name, slug, category, parent_category_id } = this.categoryForm.getRawValue();
-        if (name == '' || slug == '') {
+        if (name == '') {
             this.showToast('Please fill out the required fields', 'Required', 'error');
             return;
         }

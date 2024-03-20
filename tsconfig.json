@@ -16,6 +16,10 @@
         "lib": [
             "es2018",
             "dom"
+        ],
+        "types": [
+            "jquery",
+            "bootstrap"
         ]
     },
     "angularCompilerOptions": {

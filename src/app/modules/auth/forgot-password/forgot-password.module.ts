@@ -15,7 +15,7 @@ import { authForgotPasswordRoutes } from 'app/modules/auth/forgot-password/forgo
     declarations: [
         AuthForgotPasswordComponent
     ],
-    imports     : [
+    imports: [
         RouterModule.forChild(authForgotPasswordRoutes),
         MatButtonModule,
         MatFormFieldModule,
@@ -27,6 +27,5 @@ import { authForgotPasswordRoutes } from 'app/modules/auth/forgot-password/forgo
         SharedModule
     ]
 })
-export class AuthForgotPasswordModule
-{
+export class AuthForgotPasswordModule {
 }

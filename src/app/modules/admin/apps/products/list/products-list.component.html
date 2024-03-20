@@ -203,12 +203,12 @@
                                 <input matInput placeholder="Enter Product Source" formControlName="source">
                             </mat-form-field>
                         </div>
-                        <div class="col-12 col-md-6">
+                        <!-- <div class="col-12 col-md-6">
                             <mat-form-field class="w-full" appearance="fill">
                                 <mat-label>Slug*</mat-label>
                                 <input matInput placeholder="Enter Slug" formControlName="slug">
                             </mat-form-field>
-                        </div>
+                        </div> -->
                         <div class="col-12 col-md-6">
                             <mat-form-field class="w-full" appearance="fill">
                                 <mat-label>Product Type*</mat-label>
@@ -326,9 +326,13 @@
                                             </a>
                                         </td>
                                         <td>
-                                            <a href="{{item.url}}" target="_blank">{{item.name}}</a>
+                                            <span *ngIf="user.role == 'vendor'">{{item.name}}</span>
+                                            <a *ngIf="user.role != 'vendor'" href="{{item.url}}"
+                                                target="_blank">{{item.name}}</a>
                                         </td>
-                                        <td>{{item.regularPrice | currency}}</td>
+                                        <td>
+                                            {{ user.role == 'vendor' ? '$$$' : (item.regularPrice | currency)}}
+                                        </td>
                                         <td>{{item.sku}}</td>
                                         <td>{{item.customerReviewCount}}</td>
                                         <td>

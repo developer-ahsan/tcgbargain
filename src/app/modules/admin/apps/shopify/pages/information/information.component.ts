@@ -67,6 +67,7 @@ export class ShopifyInfoListComponent implements OnInit, OnDestroy {
     getSelectedStore() {
         this._productService.Product$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             this.slectedStore = res["data"][0].details[0];
+            this.productForm.patchValue({ platform: res["data"][0].platform })
             this.productForm.patchValue(this.slectedStore);
         });
     }

@@ -87,7 +87,8 @@ export class StoresListComponent implements OnInit, OnDestroy {
     getStoresList(page, msg, type) {
         const params = {
             list: true,
-            sort_order: 'ASC',
+            sort_order: 'DESC',
+            sort_by: 'created_at',
             keyword: this.keyword,
             page,
             size: 20,

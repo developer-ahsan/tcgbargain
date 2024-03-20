@@ -16,7 +16,7 @@ import { authSignInRoutes } from 'app/modules/auth/sign-in/sign-in.routing';
     declarations: [
         AuthSignInComponent
     ],
-    imports     : [
+    imports: [
         RouterModule.forChild(authSignInRoutes),
         MatButtonModule,
         MatCheckboxModule,
@@ -27,8 +27,8 @@ import { authSignInRoutes } from 'app/modules/auth/sign-in/sign-in.routing';
         FuseCardModule,
         FuseAlertModule,
         SharedModule
-    ]
+    ],
+
 })
-export class AuthSignInModule
-{
+export class AuthSignInModule {
 }

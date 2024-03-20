@@ -9,11 +9,11 @@
 
             <!-- Title -->
             <div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">Sign in</div>
-            <!-- <div class="flex items-baseline mt-0.5 font-medium">
+            <div class="flex items-baseline mt-0.5 font-medium">
                 <div>Don't have an account?</div>
                 <a class="ml-1 text-primary-500 hover:underline" [routerLink]="['/sign-up']">Sign up
                 </a>
-            </div> -->
+            </div>
 
             <!-- Alert -->
             <fuse-alert class="mt-8 -mb-4" *ngIf="showAlert" [appearance]="'outline'" [showIcon]="false"
@@ -58,11 +58,12 @@
                     <mat-checkbox [color]="'primary'" [formControlName]="'rememberMe'">
                         Remember me
                     </mat-checkbox>
-                    <!-- <a
-                        class="text-md font-medium text-primary-500 hover:underline"
-                        [routerLink]="['/forgot-password']">Forgot password?
-                    </a> -->
+                    <a class="text-md font-medium text-primary-500 hover:underline"
+                        [routerLink]="['/forgot-password']">Forgot
+                        Password
+                    </a>
                 </div>
+
 
                 <!-- Submit button -->
                 <button class="fuse-mat-button-large w-full mt-6" mat-flat-button [color]="'primary'"
@@ -73,6 +74,9 @@
                     <mat-progress-spinner *ngIf="signInForm.disabled" [diameter]="24"
                         [mode]="'indeterminate'"></mat-progress-spinner>
                 </button>
+                <!-- <button class="fuse-mat-button-large w-full mt-6" mat-flat-button [color]="'primary'">
+                    <span> Sign up </span>
+                </button> -->
             </form>
         </div>
     </div>

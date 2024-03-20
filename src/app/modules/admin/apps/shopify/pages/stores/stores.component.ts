@@ -12,6 +12,9 @@ import { ToastrService } from 'ngx-toastr';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { ProductsService } from '../../shopify.service';
 import { AuthService } from 'app/core/auth/auth.service';
+// declare var $: any;
+import * as jQuery from 'jquery';
+
 
 @Component({
     selector: 'stores-list',
@@ -54,6 +57,13 @@ export class StoreProducstListComponent implements OnInit, OnDestroy {
     user: any;
     AllCategories = [];
     ngSelectedCats: any;
+    modalData: any;
+    showModal: boolean = false;
+    catNotExist: boolean = false;
+    newCategory: string = '';
+
+    isImportLoader: boolean = false;
+
     constructor(
         private _activatedRoute: ActivatedRoute,
         private _changeDetectorRef: ChangeDetectorRef,
@@ -110,69 +120,152 @@ export class StoreProducstListComponent implements OnInit, OnDestroy {
         });
     }
 
-    addNewShopifyProduct(products: any) {
-        if (!this.ngSelectedCats) {
-            this.showToast('Please select atleat one categories', 'Select Category', 'error');
+    openModal() {
+        let products = [];
+        this.storeProducts.forEach(product => {
+            if (product.checked) {
+                products.push(product);
+            }
+        });
+        if (products.length == 0) {
+            this.showToast('Please select at least 1 product', 'Add Store Product', 'error');
             return;
         }
+        this.modalData = { products: products };
+        this.ngSelectedCats = null;
+        this.showModal = true;
+    }
+    closeModal() {
+        this.catNotExist = false;
+        this.showModal = false;
+        this._changeDetectorRef.markForCheck();
 
-        products.importLoader = true;
-        const { title, url, body_html, price, handle, is_active, id, product, image, vendor_id, source, product_type, affiliate_url } = products
-        let image_url = '';
-        if (image) {
-            image_url = image.src;
+    }
+    addNewShopifyProduct() {
+        if (!this.ngSelectedCats) {
+            this.showToast('Please select atleast one categories', 'Select Category', 'error');
+            return;
         }
-        let Variants = [];
-        let Packaging = null;
+        // console.log(this.modalData.products);
+        // return;
+        // this.modalData.importLoader = true;
+        // const { title, url, body_html, price, handle, is_active, id, product, image, vendor_id, source, product_type, affiliate_url } = this.modalData
+        // let image_url = '';
+        // if (image) {
+        //     image_url = image.src;
+        // }
+        // let Variants = [];
+        // let Packaging = null;
 
-        products.variants.forEach((element, index) => {
-            if (index == 0) {
-                Packaging = {
-                    size_length: 10,
-                    size_width: 5,
-                    size_height: 8,
-                    weight: element.weight
-                }
+        // this.modalData.variants.forEach((element, index) => {
+        //     if (index == 0) {
+        //         Packaging = {
+        //             size_length: 10,
+        //             size_width: 5,
+        //             size_height: 8,
+        //             weight: element.weight
+        //         }
+        //     }
+        //     Variants.push({
+        //         size: element.option3,
+        //         color: element.option2,
+        //         price_adjustment: element.price,
+        //         stock: element.inventory_quantity,
+        //         sku: element.sku
+        //     })
+        // });
+        // let Images = [];
+        // this.modalData.images.forEach(element => {
+        //     Images.push(element.src);
+        // });
+        // let payload = {
+        //     name: title,
+        //     description: body_html,
+        //     product_number: id,
+        //     price: Number(this.modalData.variants[0].price),
+        //     source: "Shopify",
+        //     url: handle,
+        //     ...(this.user.role === 'vendor' && { vendor_id: this.user.vendor.id }),
+        //     image_url: image_url,
+        //     slug: handle,
+        //     is_active: true,
+        //     product_type: 'normal',
+        //     affiliate_url: "",
+        //     delivery_rate: 5.99,
+        //     categories: this.ngSelectedCats,
+        //     variants: Variants,
+        //     packaging: Packaging,
+        //     images: Images,
+        //     shopify_product: true
+        // };
+        let products = [];
+        for (let product of this.modalData.products) {
+            const { title, url, body_html, price, handle, is_active, id, image, vendor_id, source, product_type, affiliate_url } = product;
+
+            let image_url = '';
+            if (image) {
+                image_url = image.src;
             }
-            Variants.push({
-                size: element.option3,
-                color: element.option2,
-                price_adjustment: element.price,
-                stock: element.inventory_quantity,
-                sku: element.sku
-            })
-        });
-        let Images = [];
-        products.images.forEach(element => {
-            Images.push(element.src);
-        });
+            let Variants = [];
+            let Packaging = null;
+
+            product.variants.forEach((element, index) => {
+                if (index == 0) {
+                    Packaging = {
+                        size_length: 10,
+                        size_width: 5,
+                        size_height: 8,
+                        weight: element.weight
+                    }
+                }
+                Variants.push({
+                    size: element.option3,
+                    color: element.option2,
+                    price_adjustment: element.price,
+                    stock: element.inventory_quantity,
+                    sku: element.sku
+                })
+            });
+            let Images = [];
+            product.images.forEach(element => {
+                Images.push(element.src);
+            });
+
+            products.push({
+                name: title,
+                description: body_html,
+                product_number: id,
+                price: Number(product.variants[0].price),
+                source: "Shopify",
+                url: handle,
+                image_url: image_url,
+                slug: handle,
+                is_active: true,
+                product_type: 'normal',
+                affiliate_url: "",
+                delivery_rate: 5.99,
+                variants: Variants,
+                packaging: Packaging,
+                images: Images,
+            });
+        }
+
         let payload = {
-            name: title,
-            description: body_html,
-            product_number: id,
-            price: Number(products.variants[0].price),
-            source: "Shopify",
-            url: handle,
+            products: products,
             ...(this.user.role === 'vendor' && { vendor_id: this.user.vendor.id }),
-            image_url: image_url,
-            slug: handle,
-            is_active: true,
-            product_type: 'normal',
-            affiliate_url: "",
-            delivery_rate: 5.99,
             categories: this.ngSelectedCats,
-            variants: Variants,
-            packaging: Packaging,
-            images: Images,
             shopify_product: true
         };
         this._productService.postProductCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
             this.showToast(res["message"], 'Product Created', 'success');
-            products.importLoader = false;
+            this.showModal = false;
+            this.modalData.importLoader = false;
+            this.modalData = null;
             this.ngSelectedCats = null;
             this._changeDetectorRef.markForCheck();
 
         }, err => {
+            this.modalData.importLoader = false;
             this.isAddLoader = false;
             this._changeDetectorRef.markForCheck();
             this.showToast(err.error["message"], err.error["code"], 'error');
@@ -252,6 +345,31 @@ export class StoreProducstListComponent implements OnInit, OnDestroy {
             }
         }, err => {
             store.delLoader = false;
+            this._changeDetectorRef.markForCheck();
+            this.showToast(err.error["message"], err.error["code"], 'error');
+        })
+    }
+    addNewCategory() {
+        if (this.newCategory == '') {
+            this.showToast('Please fill out the required fields', 'Required', 'error');
+            return;
+        }
+        this.isAddLoader = true;
+        let payload = { name: this.newCategory, slug: '', category: true, parent_category_id: null };
+        this._productService.addCatCalls(payload).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
+            if (res["message"]) {
+                this._productService.getAllVendors().subscribe(res => {
+                    this.isAddLoader = false;
+                    this._changeDetectorRef.markForCheck();
+                    this.getAllCategories();
+                });
+            } else {
+                this.isAddLoader = false;
+                this._changeDetectorRef.markForCheck();
+            }
+
+        }, err => {
+            this.isAddLoader = false;
             this._changeDetectorRef.markForCheck();
             this.showToast(err.error["message"], err.error["code"], 'error');
         })

@@ -7,29 +7,7 @@ import { TasksDetailsComponent } from 'app/modules/admin/apps/tasks/details/deta
 
 export const tasksRoutes: Route[] = [
     {
-        path     : '',
-        component: TasksComponent,
-        resolve  : {
-            tags: TasksTagsResolver
-        },
-        children : [
-            {
-                path     : '',
-                component: TasksListComponent,
-                resolve  : {
-                    tasks: TasksResolver
-                },
-                children : [
-                    {
-                        path         : ':id',
-                        component    : TasksDetailsComponent,
-                        resolve      : {
-                            task: TasksTaskResolver
-                        },
-                        canDeactivate: [CanDeactivateTasksDetails]
-                    }
-                ]
-            }
-        ]
+        path: '',
+        component: TasksComponent
     }
 ];

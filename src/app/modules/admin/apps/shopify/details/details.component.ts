@@ -106,7 +106,7 @@ export class ShopifysDetailsComponents implements OnInit, AfterViewInit, OnDestr
                     },
                     {
                         id: 'store.address',
-                        title: 'Store Products',
+                        title: 'Shopify Products',
                         icon: 'mat_outline:category',
                         type: 'basic',
                         link: `/apps/shopify/${this.selectedProduct.id}/store-products`

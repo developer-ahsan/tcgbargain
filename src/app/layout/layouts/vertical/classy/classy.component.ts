@@ -71,17 +71,17 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy {
                         },
                     )
                 }
-                if (this.user.role == 'vendor') {
-                    navigation.default.push(
-                        {
-                            id: 'users',
-                            title: 'Customer Management',
-                            type: 'basic',
-                            icon: 'heroicons_outline:users',
-                            link: '/apps/users'
-                        },
-                    )
-                }
+                // if (this.user.role == 'vendor') {
+                //     navigation.default.push(
+                //         {
+                //             id: 'users',
+                //             title: 'Customer Management',
+                //             type: 'basic',
+                //             icon: 'heroicons_outline:users',
+                //             link: '/apps/users'
+                //         },
+                //     )
+                // }
                 navigation.default.push(
                     {
                         id: 'products',
@@ -111,9 +111,22 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy {
                         icon: 'heroicons_outline:briefcase',
                         link: '/apps/categories'
                     },
+                    {
+                        id: 'addresses',
+                        title: 'User Addresses',
+                        type: 'basic',
+                        icon: 'heroicons_outline:map',
+                        link: '/apps/addresses'
+                    },
+                    {
+                        id: 'help',
+                        title: 'Help Center',
+                        type: 'basic',
+                        icon: 'heroicons_outline:support',
+                        link: '/apps/help-center'
+                    },
                 );
                 this.navigation = navigation;
-
             });
 
         // Subscribe to the user service

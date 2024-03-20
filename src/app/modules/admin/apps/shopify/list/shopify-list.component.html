@@ -95,8 +95,9 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <mat-form-field class="w-full" appearance="fill">
-                                <mat-label>Domain*</mat-label>
-                                <input matInput type="text" placeholder="Domain" formControlName="domain">
+                                <mat-label>Store Name*</mat-label>
+                                <input matInput type="text" placeholder="shopify_store.myshopify.com"
+                                    formControlName="domain">
                             </mat-form-field>
                         </div>
                         <div class="col-12 col-md-6">
@@ -132,54 +133,77 @@
                 <div *ngIf="mainScreen == 'Generate API Keys'" class="p-6">
                     <div class="row">
                         <div class="col-12">
-                            <p class="font-bold text-2xl">STEP 1</p>
+                            <p class="font-bold text-2xl">Settings Tab:</p>
+                            <p>Log in to your Shopify account and go to the "Settings" tab.</p>
                             <br>
                             <img src="/assets/1.png" class="w-200" />
                         </div>
                         <div class="col-12">
-                            <p class="font-bold text-2xl">STEP 2</p>
+                            <p class="font-bold text-2xl">Apps and Sales Channels:</p>
+                            <p>Within the "Settings" tab, navigate to "Apps and Sales Channels."</p>
                             <br>
                             <img src="/assets/2.png" class="w-200" />
                         </div>
                         <div class="col-12">
-                            <p class="font-bold text-2xl">STEP 3</p>
+                            <p class="font-bold text-2xl">Create a New App:</p>
+                            <p>Create a new app by providing a name and app decorator.</p>
                             <br>
                             <img src="/assets/3.png" class="w-200" />
                         </div>
                         <div class="col-12">
-                            <p class="font-bold text-2xl">STEP 4</p>
                             <br>
                             <img class="w-200" src="/assets/4.png" />
                         </div>
                         <div class="col-12">
-                            <p class="font-bold text-2xl">STEP 5</p>
+                            <p class="font-bold text-2xl">Configuration Tab:</p>
+                            <p>Access the "Configuration" tab within the app settings.</p>
                             <br>
                             <img class="w-200" src="/assets/5.png" />
                         </div>
                         <div class="col-12">
-                            <p class="font-bold text-2xl">STEP 6</p>
+                            <p class="font-bold text-2xl">Configure Admin API Integration:</p>
+                            <p>Set up Admin API integration in the "Configuration" tab.</p>
                             <br>
                             <img class="w-200" src="/assets/6.png" />
                         </div>
                         <div class="col-12">
-                            <p class="font-bold text-2xl">STEP 7</p>
+                            <p class="font-bold text-2xl">Choose API Permissions:</p>
+                            <p>Select the specific API permissions you want for product listing.</p>
                             <br>
-                            <img class="w-200" src="/assets/7.png" />
+                            <img class="w-200" src="/assets/15.png" />
+                            <br>
+                            <p>Select the specific API permissions you want for orders listing.</p>
+                            <br>
+                            <img class="w-200" src="/assets/16.png" />
                         </div>
                         <div class="col-12">
-                            <p class="font-bold text-2xl">STEP 8</p>
+                            <p class="font-bold text-2xl">Click API Credentials:</p>
+                            <p>In the Admin API section, click on "API Credentials" to reveal your API keys.</p>
                             <br>
                             <img class="w-200" src="/assets/8.png" />
                         </div>
                         <div class="col-12">
-                            <p class="font-bold text-2xl">STEP 9</p>
+                            <p class="font-bold text-2xl">Copy Revealed API Keys:</p>
+                            <p>Copy the API keys that are revealed.</p>
                             <br>
                             <img class="w-200" src="/assets/9.png" />
                         </div>
                         <div class="col-12">
-                            <p class="font-bold text-2xl">STEP 10</p>
+                            <p class="font-bold text-2xl">Install App:</p>
+                            <p>After obtaining the API keys, click on "Install App" to create an app token.</p>
                             <br>
                             <img class="w-200" src="/assets/10.png" />
+                        </div>
+                        <div class="col-12">
+                            <p class="font-bold text-2xl">Token Generated:</p>
+                            <p>Copy the access token.</p>
+                            <br>
+                            <img class="w-200" src="/assets/11.png" />
+                        </div>
+                        <div class="col-12">
+                            <p class="font-bold text-2xl">Note:</p>
+                            <span>Remember to secure your API keys and app token as they provide access to your store's
+                                data and functionality.</span>
                         </div>
 
                     </div>

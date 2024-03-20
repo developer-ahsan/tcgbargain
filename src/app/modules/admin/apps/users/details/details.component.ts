@@ -119,6 +119,20 @@ export class UserDetailsComponents implements OnInit, AfterViewInit, OnDestroy {
                             title: 'Stores',
                             type: 'basic',
                             link: `/apps/users/${this.selectedUser.id}/stores`
+                        },
+                        {
+                            id: 'store',
+                            title: 'Consumer Details',
+                            type: 'group',
+                            children: [
+                                {
+                                    id: 'store.address',
+                                    title: 'User Orders',
+                                    icon: 'mat_outline:info',
+                                    type: 'basic',
+                                    link: `/apps/users/${this.selectedUser.id}/orders`
+                                },
+                            ]
                         }
                     ]
                 }

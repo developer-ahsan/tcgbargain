@@ -42,7 +42,7 @@ export const storeRoutes: Route[] = [
                         path: 'store-products',
                         component: StoreProducstListComponent,
                         data: {
-                            title: 'Store Products',
+                            title: 'Shopify Products',
                             url: 'store-products'
                         }
                     }

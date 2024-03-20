@@ -11,24 +11,32 @@ import { FuseAlertModule } from '@fuse/components/alert';
 import { SharedModule } from 'app/shared/shared.module';
 import { AuthSignUpComponent } from 'app/modules/auth/sign-up/sign-up.component';
 import { authSignupRoutes } from 'app/modules/auth/sign-up/sign-up.routing';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
 
 @NgModule({
     declarations: [
         AuthSignUpComponent
     ],
-    imports     : [
+    imports: [
         RouterModule.forChild(authSignupRoutes),
+        ToastrModule.forRoot(),
         MatButtonModule,
+        MatSelectModule,
         MatCheckboxModule,
         MatFormFieldModule,
+        MatTooltipModule,
         MatIconModule,
         MatInputModule,
         MatProgressSpinnerModule,
         FuseCardModule,
         FuseAlertModule,
         SharedModule
+    ],
+    providers: [
+        ToastrService
     ]
 })
-export class AuthSignUpModule
-{
+export class AuthSignUpModule {
 }

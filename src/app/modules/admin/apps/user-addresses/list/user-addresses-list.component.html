@@ -1,0 +1,242 @@
+<div class="absolute inset-0 flex flex-col min-w-0 overflow-y-auto bg-light dark:bg-transparent">
+    <!-- Header -->
+    <div class="bg-white relative bg-light  sm:items-center sm:justify-between py-2 px-6 md:px-8 border-b">
+        <div class="mt-2 py-4">
+            <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+                User Addresses Management
+            </h2>
+        </div>
+
+    </div>
+    <div class="rounded-2xl shadow bg-card flex flex-col lg:flex-row w-full my-5">
+        <div class="w-full">
+            <div class="p-5 pb-4">
+                <mat-button-toggle-group #group="matButtonToggleGroup" [value]="mainScreen"
+                    (change)="calledScreen(group.value)">
+                    <mat-button-toggle value="Current Addresses">
+                        Current Addresses
+                    </mat-button-toggle>
+                    <mat-button-toggle value="Add New Address">
+                        Add New Address
+                    </mat-button-toggle>
+                    <mat-button-toggle value="Payment Information" *ngIf="user.role=='vendor'">
+                        Payment Information
+                    </mat-button-toggle>
+                </mat-button-toggle-group>
+            </div>
+            <div>
+                <div *ngIf="mainScreen == 'Current Addresses'">
+                    <div *ngIf="isLoading" class="px-5">
+                        <ngx-skeleton-loader count="8" appearance="line" animation="pulse" [theme]="{ 
+                            'background-color': '#dedede'
+                          }">
+                        </ngx-skeleton-loader>
+                    </div>
+                    <div *ngIf="!isLoading">
+                        <div *ngIf="dataSource.length > 0;else other_content" class="w-full">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Street</th>
+                                        <th>City</th>
+                                        <th>State</th>
+                                        <th>Postal</th>
+                                        <th>Country</th>
+                                        <th>Phone</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of dataSource">
+                                        <td>{{item.street}}</td>
+                                        <td>
+                                            {{item.city}}
+                                        </td>
+                                        <td>{{item.state}}</td>
+                                        <td>{{item.postal_code}}</td>
+                                        <td>{{item.country}}</td>
+                                        <td>{{item.phone_number}}</td>
+                                        <td>
+                                            <div class="flex cursor-pointer">
+                                                <mat-icon svgIcon="heroicons_outline:trash" *ngIf="!item?.delLoader"
+                                                    (click)="deleteProduct(item)"></mat-icon>
+                                                <mat-progress-spinner *ngIf="item?.delLoader" [diameter]="24"
+                                                    [mode]="'indeterminate'" class="ml-2"></mat-progress-spinner>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <mat-paginator #paginator *ngIf="totalUsers > dataSource.length"
+                                class="border-b sm:border-t sm:border-b-0 z-10 bg-gray-50 dark:bg-transparent"
+                                [ngClass]="{'pointer-events-none': isLoading}" [length]="totalUsers" [pageIndex]="0"
+                                [pageSize]="20" (page)="getNextData($event)" [hidePageSize]="true">
+                            </mat-paginator>
+                        </div>
+                        <!-- No Users Found -->
+                        <ng-template #other_content>
+                            <div class="px-8">
+                                <div class="font-semibold  text-center alert alert-danger">
+                                    No Address Found.
+                                </div>
+                            </div>
+                        </ng-template>
+                    </div>
+                </div>
+                <div *ngIf="mainScreen == 'Add New Address'" class="p-6">
+                    <div class="row" [formGroup]="addressForm">
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>Street*</mat-label>
+                                <input matInput placeholder="Enter Street" formControlName="street">
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>City*</mat-label>
+                                <input matInput placeholder="City" formControlName="city">
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>State*</mat-label>
+                                <input matInput type="text" placeholder="State" formControlName="state">
+                            </mat-form-field>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>Country*</mat-label>
+                                <mat-select matInput formControlName="country">
+                                    <mat-option value="CA">Canada</mat-option>
+                                    <mat-option value="US">USA</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>Phone Number*</mat-label>
+                                <input matInput placeholder="Phone Number" formControlName="phone_number">
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>Postal Code*</mat-label>
+                                <input matInput placeholder="Postal Code" formControlName="postal_code">
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>Company*</mat-label>
+                                <input matInput placeholder="Company" formControlName="company">
+                            </mat-form-field>
+                        </div>
+                        <div class="text-right col-12">
+                            <button class="min-w-50" mat-stroked-button [matTooltip]="'Add New Address'"
+                                (click)="addNewProduct()" [disabled]="isAddLoader || !addressForm.valid">
+                                <mat-icon svgIcon="heroicons_solid:plus" *ngIf="!isAddLoader"></mat-icon>
+                                <span class="ml-2" *ngIf="!isAddLoader">Add New Address </span>
+                                <mat-progress-spinner *ngIf="isAddLoader" [diameter]="24"
+                                    [mode]="'indeterminate'"></mat-progress-spinner>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Payment Information -->
+                <div *ngIf="mainScreen == 'Payment Information'" class="p-6">
+                    <div class="row" [formGroup]="paymentForm" *ngIf="!accountInformation?.customer_id">
+                        <div class="col-12 my-3">Payment Information</div>
+
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>Email*</mat-label>
+                                <input matInput formControlName="email">
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>First Name*</mat-label>
+                                <input matInput formControlName="first_name">
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>Last Name*</mat-label>
+                                <input matInput formControlName="last_name">
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>DOB*</mat-label>
+                                <input matInput formControlName="dob" [matDatepicker]="picker" (click)="picker.open()"
+                                    readonly [max]="minDate">
+                                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                                <mat-datepicker #picker></mat-datepicker>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>Country*</mat-label>
+                                <mat-select matInput formControlName="country">
+                                    <mat-option value="CA">Canada</mat-option>
+                                    <mat-option value="US">USA</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <!-- <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>Street*</mat-label>
+                                <input matInput placeholder="Enter Street" formControlName="street">
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>City*</mat-label>
+                                <input matInput placeholder="City" formControlName="city">
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>State*</mat-label>
+                                <input matInput type="text" placeholder="State" formControlName="state">
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>Postal Code*</mat-label>
+                                <input matInput placeholder="Postal Code" formControlName="postal_code">
+                            </mat-form-field>
+                        </div> -->
+                        <div class="col-12 col-md-6">
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>Business Profile Url*</mat-label>
+                                <input matInput placeholder="Business Profile Url" formControlName="url">
+                            </mat-form-field>
+                        </div>
+                        <div class="text-right col-12">
+                            <button class="min-w-50" mat-stroked-button [matTooltip]="'Add Payment Information'"
+                                (click)="addStripeInformation()" [disabled]="isStripeLoader || !paymentForm.valid">
+                                <mat-icon svgIcon="heroicons_solid:plus" *ngIf="!isStripeLoader"></mat-icon>
+                                <span class="ml-2" *ngIf="!isStripeLoader"> Add Payment Information </span>
+                                <mat-progress-spinner *ngIf="isStripeLoader" [diameter]="24"
+                                    [mode]="'indeterminate'"></mat-progress-spinner>
+                            </button>
+                        </div>
+                    </div>
+                    <div *ngIf="accountInformation?.customer_id">
+                        <div class="px-8">
+                            <div class="font-semibold  text-center alert alert-success">
+                                Account Infromation already saved if you want to update information <span
+                                    class="cursor-pointer" (click)="clearStripeInformation()"><b
+                                        *ngIf="!accountDelLoader">Click Here</b>
+                                    <mat-progress-spinner *ngIf="accountDelLoader" [diameter]="24"
+                                        [mode]="'indeterminate'" class="ml-2"></mat-progress-spinner>
+                                </span>.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

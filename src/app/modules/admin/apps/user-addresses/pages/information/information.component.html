@@ -1,0 +1,52 @@
+<div class="flex-auto w-full p-5">
+    <div class="bg-card rounded-2xl p-5">
+        <div class="row" [formGroup]="productForm">
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Platform Name*</mat-label>
+                    <input matInput placeholder="Enter Platform Name" formControlName="platform">
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Store Title*</mat-label>
+                    <input matInput placeholder="Store Title" formControlName="title">
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Domain*</mat-label>
+                    <input matInput type="text" placeholder="Domain" formControlName="domain">
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Api Key*</mat-label>
+                    <input matInput placeholder="Api Key" formControlName="api_key">
+                </mat-form-field>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Api Secret*</mat-label>
+                    <input matInput formControlName="api_secret" placeholder="Api Secret">
+                </mat-form-field>
+            </div>
+            <div class="col-12 col-md-6">
+                <mat-form-field class="w-full" appearance="fill">
+                    <mat-label>Access Token*</mat-label>
+                    <input matInput placeholder="Access Token" formControlName="access_token">
+                </mat-form-field>
+            </div>
+            <div class="text-right col-12">
+                <button class="min-w-50" mat-stroked-button [matTooltip]="'Update Store'" (click)="updateProduct()"
+                    [disabled]="isEditLoader || !productForm.valid">
+                    <mat-icon svgIcon="heroicons_solid:plus" *ngIf="!isEditLoader"></mat-icon>
+                    <span class="ml-2" *ngIf="!isEditLoader"> Update Store </span>
+                    <mat-progress-spinner *ngIf="isEditLoader" [diameter]="24"
+                        [mode]="'indeterminate'"></mat-progress-spinner>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

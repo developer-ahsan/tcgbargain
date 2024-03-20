@@ -58,6 +58,10 @@ export class ProductsService {
             params: params
         }).pipe(retry(3));
     };
+    addCatCalls(payload) {
+        return this._httpClient.post(
+            environment.categoryUrl, payload);
+    };
     postCalls(payload) {
         return this._httpClient.post(
             environment.shopifyURL, payload);
@@ -78,7 +82,8 @@ export class ProductsService {
         return this._httpClient.get<any[]>(environment.categoryUrl, {
             params: {
                 list: true,
-                drop_down: true
+                drop_down: true,
+                is_child: true
             }
         }).pipe(
             tap((response: any) => {

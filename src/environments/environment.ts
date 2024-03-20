@@ -4,6 +4,7 @@
 
 export const environment = {
     production: false,
+    resetPasswordUrl: 'https://www.googleapis.com/identitytoolkit/v3/relyingparty/getOobConfirmationCode?key=AIzaSyC8xoI2Yl_nZlQxsNIJSgZfvC8h4kNkqzM',
     signInAuth: "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyC8xoI2Yl_nZlQxsNIJSgZfvC8h4kNkqzM",
     apiUrl: 'https://sulaim-admin.azurewebsites.net/api',
     userUrl: 'https://sulaim-admin.azurewebsites.net/api/user',

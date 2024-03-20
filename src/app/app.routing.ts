@@ -33,7 +33,8 @@ export const appRoutes: Route[] = [
             { path: 'forgot-password', loadChildren: () => import('app/modules/auth/forgot-password/forgot-password.module').then(m => m.AuthForgotPasswordModule) },
             { path: 'reset-password', loadChildren: () => import('app/modules/auth/reset-password/reset-password.module').then(m => m.AuthResetPasswordModule) },
             { path: 'sign-in', loadChildren: () => import('app/modules/auth/sign-in/sign-in.module').then(m => m.AuthSignInModule) },
-            { path: 'sign-up', loadChildren: () => import('app/modules/auth/sign-up/sign-up.module').then(m => m.AuthSignUpModule) }
+            { path: 'sign-up', loadChildren: () => import('app/modules/auth/sign-up/sign-up.module').then(m => m.AuthSignUpModule) },
+            { path: 'emailVerification/:email', loadChildren: () => import('app/modules/admin/apps/tasks/tasks.module').then(m => m.TasksModule) },
         ]
     },
 
@@ -48,7 +49,8 @@ export const appRoutes: Route[] = [
         },
         children: [
             { path: 'sign-out', loadChildren: () => import('app/modules/auth/sign-out/sign-out.module').then(m => m.AuthSignOutModule) },
-            { path: 'unlock-session', loadChildren: () => import('app/modules/auth/unlock-session/unlock-session.module').then(m => m.AuthUnlockSessionModule) }
+            { path: 'unlock-session', loadChildren: () => import('app/modules/auth/unlock-session/unlock-session.module').then(m => m.AuthUnlockSessionModule) },
+
         ]
     },
 
@@ -95,6 +97,7 @@ export const appRoutes: Route[] = [
                     { path: 'products', loadChildren: () => import('app/modules/admin/apps/products/products.module').then(m => m.ProductsModule) },
                     { path: 'categories', loadChildren: () => import('app/modules/admin/apps/categories/categories.module').then(m => m.CategoriesModule) },
                     { path: 'shopify', loadChildren: () => import('app/modules/admin/apps/shopify/shopify.module').then(m => m.ShopifyModule) },
+                    { path: 'addresses', loadChildren: () => import('app/modules/admin/apps/user-addresses/user-addresses.module').then(m => m.UserAddressesModule) },
                     { path: 'academy', loadChildren: () => import('app/modules/admin/apps/academy/academy.module').then(m => m.AcademyModule) },
                     { path: 'calendar', loadChildren: () => import('app/modules/admin/apps/calendar/calendar.module').then(m => m.CalendarModule) },
                     { path: 'chat', loadChildren: () => import('app/modules/admin/apps/chat/chat.module').then(m => m.ChatModule) },
@@ -105,14 +108,13 @@ export const appRoutes: Route[] = [
                     { path: 'mailbox', loadChildren: () => import('app/modules/admin/apps/mailbox/mailbox.module').then(m => m.MailboxModule) },
                     { path: 'notes', loadChildren: () => import('app/modules/admin/apps/notes/notes.module').then(m => m.NotesModule) },
                     { path: 'scrumboard', loadChildren: () => import('app/modules/admin/apps/scrumboard/scrumboard.module').then(m => m.ScrumboardModule) },
-                    { path: 'tasks', loadChildren: () => import('app/modules/admin/apps/tasks/tasks.module').then(m => m.TasksModule) },
+
                 ]
             },
 
             // Pages
             {
                 path: 'pages', children: [
-
                     // Activities
                     { path: 'activities', loadChildren: () => import('app/modules/admin/pages/activities/activities.module').then(m => m.ActivitiesModule) },
 
