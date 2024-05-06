@@ -24,6 +24,7 @@
                             <th>Name</th>
                             <th>Price</th>
                             <th>Status</th>
+                            <th>Inventory</th>
                             <th>Created At</th>
                             <th>Action</th>
                         </tr>
@@ -37,7 +38,12 @@
                             <td>{{item.id}}</td>
                             <td>{{item.title}}</td>
                             <td>{{item.variants[0].price | currency}}</td>
-                            <td class="text-capitalize">{{item.status}}</td>
+                            <td class="text-capitalize font-bold">{{item.status}}</td>
+                            <td class="text-capitalize font-bold"
+                                [ngClass]="{'text-green-500': item?.variants[0]?.inventory_quantity > 0, 'text-red-500': item?.variants[0]?.inventory_quantity <= 0}">
+                                {{item?.variants[0]?.inventory_quantity > 0 ? 'InStock(' +
+                                item?.variants[0]?.inventory_quantity+')': 'Out
+                                of Stock'}}</td>
                             <td>{{item.created_at | date}}</td>
                             <td>
                                 <mat-checkbox [(ngModel)]="item.checked"></mat-checkbox>

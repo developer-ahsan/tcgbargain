@@ -104,14 +104,15 @@ export class StoreProducstListComponent implements OnInit, OnDestroy {
     }
     getProductsStore() {
         let params = {
-            fetch_product: true,
+            fetch_product_v2: true,
             access_token: this.selectedProduct.access_token,
             api_key: this.selectedProduct.api_key,
+            page: this.prodPage,
             domain: this.selectedProduct.domain
         }
         this._productService.getCalls(params).pipe(takeUntil(this._unsubscribeAll)).subscribe(res => {
-            this.storeProducts = res["products"];
-            this.totalStoreProd = res["totalRecords"];
+            this.storeProducts = res["data"];
+            this.totalStoreProd = res["total_requests"];
             this.isLoading = false;
             this._changeDetectorRef.markForCheck();
         }, err => {
